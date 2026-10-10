@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (pytest + citation resolve)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: server/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # RAG models (all-MiniLM-L6-v2, bge-reranker-base) live in server/models,
+      # which is gitignored. The citation tests never load them; seed with FAISS
+      # deferred + VLM disabled so CI needs no model download, no keys, and no GPU.
+      # A pristine CI container is wiped anyway; the reset script makes that state
+      # explicit and deterministic (wipe -> ingest -> assert).
+      - name: Seed real course (wipe + ingest + assert)
+        env:
+          CI: "true"
+          VLM_ENABLED: "false"
+          RAG_DEFER_FAISS_BUILD: "true"
+          RAG_AUTO_BUILD_FAISS: "false"
+        run: python ../scripts/reset_seed_real.py
+
+      - name: Assert seeded knowledge base
+        env:
+          CI: "true"
+        run: |
+          python - <<'PY'
+          import json, os
+          db = os.path.join('app', 'data', 'tutor', 'tutor_db.json')
+          data = json.load(open(db, encoding='utf-8'))
+          units = data.get('units', {})
+          assert len(units) > 200, f"expected 200+ units, got {len(units)}"
+          print(f"[assert] seeded: {len(data.get('sources', {}))} sources, {len(units)} units")
+          PY
+
+      - name: Run regression tests
+        run: python -m pytest tests -q
+
+  frontend:
+    name: Frontend (tsc + vite build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build

@@ -23,6 +23,13 @@ SERVER_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "serv
 if SERVER_DIR not in sys.path:
     sys.path.insert(0, SERVER_DIR)
 
+from dotenv import load_dotenv  # noqa: E402
+load_dotenv(os.path.join(SERVER_DIR, ".env"))
+
+os.environ.setdefault("VLM_ENABLED", "false")
+os.environ.setdefault("RAG_DEFER_FAISS_BUILD", "true")
+os.environ.setdefault("RAG_AUTO_BUILD_FAISS", "false")
+
 
 def already_seeded() -> bool:
     """Treat the topic graph as the idempotency marker."""

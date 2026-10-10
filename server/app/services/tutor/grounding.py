@@ -34,16 +34,35 @@ _EN_STOP = {
 
 
 def _stem(w: str) -> str:
-    """Naive suffix-stripping so 'loops' matches 'loop', 'working' matches 'work'."""
-    for s in ("ing", "tion", "sion", "ment", "ness", "able", "ible"):
-        if len(w) > len(s) + 2 and w.endswith(s):
-            return w[: -len(s)]
-    for s in ("ed", "ly", "er", "es"):
-        if len(w) > len(s) + 2 and w.endswith(s):
-            return w[: -len(s)]
-    if w.endswith("s") and len(w) > 3 and w[-2] != "s":
-        return w[:-1]
-    return w
+    """Conservative naive stemming: strip plural s/es/ies FIRST, then verb endings
+    (ed/ing/ly/er). Aggressive noun suffixes (able/ible/tion/sion/ment/ness) are
+    deliberately NOT stripped so ``variable`` / ``variables`` stay symmetric —
+    required for the offline relevance gate to match the query "variable"
+    against textbook text that says "variables".
+    """
+    base = w
+    if base.endswith("ies") and len(base) > 4:
+        base = base[:-3] + "y"
+    elif base.endswith("es") and len(base) > 4:
+        base = base[:-2]
+    elif base.endswith("s") and len(base) > 3 and not base.endswith(("ss", "us", "is")):
+        base = base[:-1]
+    for s in ("ing", "ed", "ly", "er"):
+        if len(base) > len(s) + 2 and base.endswith(s):
+            base = base[: -len(s)]
+            break
+    return base
+
+
+def _stem_overlap(a: str, b: str) -> bool:
+    """Token match: exact equality OR a shared prefix >= 4 chars.
+
+    ``variable`` vs ``variabl`` are different strings (plural vs noun-ending
+    handling) but must still count as the same word in the relevance gate.
+    """
+    if a == b:
+        return True
+    return len(a) >= 4 and len(b) >= 4 and (a.startswith(b) or b.startswith(a))
 
 
 def _query_tokens(query: str) -> set[str]:
@@ -66,7 +85,12 @@ def _query_tokens(query: str) -> set[str]:
 
 
 def _relevance_ok(query: str, retrieved: list[dict[str, Any]]) -> bool:
-    """Cheap offline relevance gate: enough query tokens present in top evidence?"""
+    """Cheap offline relevance gate: enough query tokens present in top evidence?
+
+    Uses stemmed tokens plus shared-prefix overlap (>= 4 chars), so a query about
+    "variable" still matches evidence that says "variables" even though the naive
+    stemmer does not collapse them to an identical string.
+    """
     q_tokens = _query_tokens(query)
     if not q_tokens:
         return True
@@ -74,7 +98,10 @@ def _relevance_ok(query: str, retrieved: list[dict[str, Any]]) -> bool:
         c_tokens = _query_tokens(item.get("content") or "")
         if not c_tokens:
             continue
-        overlap = len(q_tokens & c_tokens)
+        overlap = sum(
+            1 for qt in q_tokens
+            if any(_stem_overlap(qt, ct) for ct in c_tokens)
+        )
         containment = overlap / max(len(q_tokens), 1)
         if containment >= _REFUSE_CONT_LO and overlap >= 1:
             return True

@@ -134,6 +134,7 @@ cd server && python -m pytest tests -q
 | `GET` | `/tutor/report/{student_id}` | last stored assessment report |
 | `POST` | `/tutor/evaluate/full` | full RAGAS + personalization benchmark |
 | `GET` | `/tutor/source/open?unit_id=…` | resolve a citation to page/slide/video-timestamp + seek URL |
+| `GET` | `/tutor/files?path=…` | serve a bundled course-material file (PDF/PPTX/SRT) to the browser viewer |
 
 ## Verified
 

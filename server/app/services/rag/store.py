@@ -88,7 +88,11 @@ class DualIndexStore:
                 logger.warning("sentence_transformers not installed, vector search unavailable")
                 self._embedding_model = False
             except FileNotFoundError:
-                raise
+                logger.warning(
+                    "Embedding model path not found, degrading to BM25-only. "
+                    "Set RAG_EMBEDDING_MODEL_PATH in .env to enable vector search."
+                )
+                self._embedding_model = False
             except Exception as e:
                 logger.warning(f"Embedding model load failed: {e}, degrading to BM25-only")
                 self._embedding_model = False

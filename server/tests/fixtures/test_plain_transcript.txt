@@ -1,0 +1,10 @@
+﻿This module introduces variables and data types in Python.
+A variable is created when you assign a value to it using the assignment operator.
+Python integers are whole numbers without a fractional part.
+Floating point numbers contain a decimal point and represent real numbers.
+Strings are sequences of characters enclosed in quotes or double quotes.
+Boolean values represent truth values and can be either true or false.
+Type conversion allows you to change one data type into another using built-in functions.
+List comprehension provides a concise way to create lists using square brackets.
+Dictionary keys must be hashable and immutable objects in Python.
+The len function returns the number of items in a sequence or collection.

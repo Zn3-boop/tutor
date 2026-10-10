@@ -1,0 +1,39 @@
+﻿1
+00:00:00,000 --> 00:00:03,000
+Welcome to the introduction to Python programming.
+
+2
+00:00:03,500 --> 00:00:07,000
+In this course we will learn about variables and data types.
+
+3
+00:00:07,500 --> 00:00:12,000
+A variable is a name that refers to a value stored in memory.
+
+4
+00:00:12,500 --> 00:00:17,000
+Python supports several data types including integers floats and strings.
+
+5
+00:00:17,500 --> 00:00:22,000
+The append method adds an element to the end of a list.
+
+6
+00:00:22,500 --> 00:00:27,000
+A dictionary maps keys to values using curly braces and colons.
+
+7
+00:00:27,500 --> 00:00:32,000
+Recursion occurs when a function calls itself during execution.
+
+8
+00:00:32,500 --> 00:00:37,000
+Functions are defined using the def keyword in Python.
+
+9
+00:00:37,500 --> 00:00:42,000
+The return statement sends a value back to the caller of the function.
+
+10
+00:00:42,500 --> 00:00:48,000
+Lists are mutable sequences that support indexing and slicing operations.

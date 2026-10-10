@@ -149,9 +149,22 @@ class LearningPlanner:
         for tid in topics:
             mastery[tid] = self.learner.mastery_level(student, tid)
 
-        # Prerequisite ordering first, then weak-first as the study priority.
+        # Prerequisite ordering first, weak-first as the secondary priority.
+        # Compute each topic's topological level (longest prerequisite chain) and
+        # sort by (level, mastery) so a dependent topic is NEVER scheduled before
+        # its prerequisites, regardless of how weak either topic is.
         ordered = self._toposort(topics)
-        ordered.sort(key=lambda tid: (mastery.get(tid, self.learner._fresh_params()["pL0"]), tid))
+        level: dict[str, int] = {tid: 0 for tid in topics}
+        for tid in ordered:
+            pres = [p for p in (topics.get(tid, {}).get("prerequisites") or [])
+                    if p in topics]
+            if pres:
+                level[tid] = 1 + max(level[p] for p in pres)
+        ordered.sort(key=lambda tid: (
+            level.get(tid, 0),
+            mastery.get(tid, self.learner._fresh_params()["pL0"]),
+            tid,
+        ))
 
         def _session_count(tid: str) -> int:
             m = mastery.get(tid, 0.25)
