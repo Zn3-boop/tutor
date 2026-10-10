@@ -1,0 +1,130 @@
+{
+  "course": "MIT 6.0001 Introduction to Computer Science and Programming in Python (Fall 2016) + Think Python 2nd edition",
+  "materials_dir": "server/demo_materials",
+  "attribution_note": "All bundled materials are real public course content under Creative Commons licenses. MIT OpenCourseWare materials are (c) MIT and licensed CC BY-NC-SA 4.0. Think Python is (c) Allen B. Downey and licensed CC BY-NC 3.0. This hackathon prototype uses them for non-commercial demonstration and study purposes only.",
+  "materials": [
+    {
+      "filename": "thinkpython2.pdf",
+      "title": "Think Python, 2nd Edition (Allen B. Downey) - textbook",
+      "kind": "textbook",
+      "ingest_as": "pdf",
+      "source": "Green Tea Press",
+      "url": "https://greenteapress.com/thinkpython2/thinkpython2.pdf",
+      "license": "CC BY-NC 3.0",
+      "attribution": "Allen B. Downey",
+      "pages": 244,
+      "notes": "Real page-numbered PDF. Ingested page-by-page; citations open the exact page."
+    },
+    {
+      "filename": "MIT6_0001F16_Lec1.pdf",
+      "title": "MIT 6.0001 Lecture 1: What is Computation? (slides PDF, original)",
+      "kind": "slides",
+      "ingest_as": "reference",
+      "source": "MIT OpenCourseWare, 6.0001 Fall 2016",
+      "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec1/",
+      "license": "CC BY-NC-SA 4.0",
+      "attribution": "Ana Bell, Eric Grimson, John Guttag (MIT)",
+      "pages": 35,
+      "notes": "Reference file kept as the source of the derived PPTX deck (not ingested separately to avoid duplicate units)."
+    },
+    {
+      "filename": "MIT6_0001F16_Lec1.pptx",
+      "title": "MIT 6.0001 Lecture 1 slides (PPTX deck, derived from the official PDF)",
+      "kind": "slides",
+      "ingest_as": "pptx",
+      "source": "MIT OpenCourseWare, 6.0001 Fall 2016",
+      "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec1/",
+      "derived_from": "MIT6_0001F16_Lec1.pdf",
+      "license": "CC BY-NC-SA 4.0",
+      "attribution": "Ana Bell, Eric Grimson, John Guttag (MIT)",
+      "pages": 35,
+      "notes": "Derived deck rebuilt by scripts/build_lec1_pptx.py with text extracted verbatim from the official OCW PDF; slide N == PDF page N, so slide citations are verifiable against the original deck."
+    },
+    {
+      "filename": "MIT6_0001F16_Lec2.pdf",
+      "title": "MIT 6.0001 Lecture 2: Branching and Iteration (slides)",
+      "kind": "slides",
+      "ingest_as": "pdf",
+      "source": "MIT OpenCourseWare, 6.0001 Fall 2016",
+      "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec2/",
+      "license": "CC BY-NC-SA 4.0",
+      "attribution": "Ana Bell, Eric Grimson, John Guttag (MIT)",
+      "pages": 24,
+      "notes": "Control-flow content; each PDF page is one slide, citations open the page."
+    },
+    {
+      "filename": "MIT6_0001F16_Lec3.pdf",
+      "title": "MIT 6.0001 Lecture 3: String Manipulation, Guess-and-Check, Approximations, Bisection (slides)",
+      "kind": "slides",
+      "ingest_as": "pdf",
+      "source": "MIT OpenCourseWare, 6.0001 Fall 2016",
+      "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec3/",
+      "license": "CC BY-NC-SA 4.0",
+      "attribution": "Ana Bell, Eric Grimson, John Guttag (MIT)",
+      "pages": 21,
+      "notes": "Strings / algorithms content."
+    },
+    {
+      "filename": "MIT6_0001F16_Lec4.pdf",
+      "title": "MIT 6.0001 Lecture 4: Decomposition, Abstraction, and Functions (slides)",
+      "kind": "slides",
+      "ingest_as": "pdf",
+      "source": "MIT OpenCourseWare, 6.0001 Fall 2016",
+      "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec4/",
+      "license": "CC BY-NC-SA 4.0",
+      "attribution": "Ana Bell, Eric Grimson, John Guttag (MIT)",
+      "pages": 35,
+      "notes": "Functions content (def, parameters, return, scope)."
+    },
+    {
+      "filename": "MIT6_0001F16_Lec5.pdf",
+      "title": "MIT 6.0001 Lecture 5: Tuples, Lists, Aliasing, Mutability, and Cloning (slides)",
+      "kind": "slides",
+      "ingest_as": "pdf",
+      "source": "MIT OpenCourseWare, 6.0001 Fall 2016",
+      "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec5/",
+      "license": "CC BY-NC-SA 4.0",
+      "attribution": "Ana Bell, Eric Grimson, John Guttag (MIT)",
+      "pages": 24,
+      "notes": "Lists / tuples / mutability content."
+    },
+    {
+      "filename": "MIT6_0001F16_Lec6.pdf",
+      "title": "MIT 6.0001 Lecture 6: Recursion and Dictionaries (slides)",
+      "kind": "slides",
+      "ingest_as": "pdf",
+      "source": "MIT OpenCourseWare, 6.0001 Fall 2016",
+      "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec6/",
+      "license": "CC BY-NC-SA 4.0",
+      "attribution": "Ana Bell, Eric Grimson, John Guttag (MIT)",
+      "pages": 58,
+      "notes": "Recursion and dictionaries content."
+    },
+    {
+      "filename": "MIT6_0001F16_Lec1_transcript.srt",
+      "title": "MIT 6.0001 Lecture 1 video transcript (official SRT captions with timestamps)",
+      "kind": "transcript",
+      "ingest_as": "transcript",
+      "source": "Internet Archive, MIT6.0001F16 collection",
+      "url": "https://archive.org/download/MIT6.0001F16/MIT6_0001F16_Lecture_01_300k.srt",
+      "video_url": "https://archive.org/download/MIT6.0001F16/MIT6_0001F16_Lecture_01_300k.mp4",
+      "youtube_id": "nykOeWgQcHM",
+      "license": "CC BY-NC-SA 4.0",
+      "attribution": "MIT OpenCourseWare 6.0001 (Ana Bell, Eric Grimson, John Guttag)",
+      "pages": 927,
+      "notes": "Real timestamped captions (video@HH:MM:SS origins resolve to the exact moment)."
+    },
+    {
+      "filename": "MIT6_0001F16_Lec1_transcript.pdf",
+      "title": "MIT 6.0001 Lecture 1 video transcript (plain-text PDF, artifact)",
+      "kind": "transcript",
+      "ingest_as": "reference",
+      "source": "MIT OpenCourseWare, 6.0001 Fall 2016",
+      "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/lecture-1-what-is-computation/",
+      "license": "CC BY-NC-SA 4.0",
+      "attribution": "MIT OpenCourseWare 6.0001",
+      "pages": 16,
+      "notes": "Kept as a readable artifact; the SRT file is the one ingested for timestamped citations."
+    }
+  ]
+}

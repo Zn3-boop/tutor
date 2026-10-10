@@ -1,0 +1,49 @@
+# ECV-Tutor - Hackathon Prototype Dependencies
+# Core
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.6.0
+python-dotenv>=1.0.0
+httpx>=0.27.0
+
+# RAG
+sentence-transformers>=2.6.0
+rank-bm25>=0.2.0
+faiss-cpu>=1.7.4
+numpy>=1.26.0
+
+# Document parsing
+python-docx>=1.1.0
+python-pptx>=0.9.0
+pymupdf>=1.24.0
+
+# Video transcription (optional - faster-whisper preferred over openai-whisper)
+faster-whisper>=1.0.0
+
+# Speech & video extras actually used by the app
+edge-tts>=1.1.0
+opencv-python-headless>=4.8.0
+
+# VLM (optional - requires GPU for local inference)
+# transformers>=4.40.0
+# torch>=2.3.0
+# qwen-vl-utils>=0.0.5
+
+# OCR (optional)
+# paddleocr>=2.7.0
+# pytesseract>=0.3.10
+
+# Evaluation (RAGAS + Zhipu/GLM LLM judge)
+ragas>=0.2.0,<0.3.0
+datasets>=2.19.0
+langchain-openai>=0.1.0
+langchain-community>=0.3.0,<0.4.0
+
+# Observability
+langfuse>=2.36.0
+
+# LLM extras
+openai>=1.30.0
+
+# Dev / testing
+pytest>=8.0.0

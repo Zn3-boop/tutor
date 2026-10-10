@@ -1,0 +1,15 @@
+# Model weights (download separately, see README)
+models/
+
+# Environments / secrets — never commit API keys or tokens
+.env
+.env.*
+!.env.example
+
+# Python / toolchain artifacts
+__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/
