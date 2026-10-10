@@ -43,3 +43,7 @@ _patch.py
 _patch_ragas.py
 _test_ragas.py
 fix_ragas.py
+
+# Test-gate scratch + backups (P2 AI-guard rail)
+server/tests/test_gate_*
+server/tests/*.bak

@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Unit tests for grounded tutor refusal logic."""
+"""Unit tests for grounded tutor refusal logic.
+
+🔴 BASELINE PROTECTION (P0): the invariant truth for the pure relevance-gate
+cases below lives in ``grounding_test_cases.py`` and must NOT be edited here.
+Refactor execution logic only; never tune queries/retrieved/expected to flip a
+test. The integration case (``test_grounding_no_hallucinated_citations``) keeps
+its inline facts because it exercises the real seeded knowledge base.
+"""
 
 import asyncio
 import os
@@ -11,9 +18,11 @@ if SERVER_DIR not in sys.path:
 
 from app.services.tutor.grounding import _relevance_ok, _query_tokens
 
+from grounding_test_cases import CASES
+
 
 def test_query_tokens_no_stopwords():
-    tokens = _query_tokens("What is the append method in Python lists")
+    tokens = _query_tokens(CASES["tokens_query"])
     assert "the" not in tokens
     assert "is" not in tokens
     assert "in" not in tokens
@@ -22,35 +31,32 @@ def test_query_tokens_no_stopwords():
 
 
 def test_relevance_off_topic():
-    retrieved = [
-        {"content": "Python variables store values in memory."},
-        {"content": "The append method modifies lists in Python."},
-    ]
-    relevant = _relevance_ok("What is the best recipe for chocolate cake?", retrieved)
+    case = CASES["off_topic"]
+    relevant = _relevance_ok(case["query"], case["retrieved"])
     assert not relevant
 
 
 def test_relevance_on_topic():
-    retrieved = [
-        {"content": "Python variables store values in memory."},
-        {"content": "The append method modifies lists in Python."},
-        {"content": "Functions are defined with the def keyword."},
-    ]
-    relevant = _relevance_ok(
-        "What is a variable in Python and how do you define it?", retrieved
-    )
+    case = CASES["on_topic"]
+    relevant = _relevance_ok(case["query"], case["retrieved"])
     assert relevant
 
 
 def test_relevance_empty_query():
-    assert _relevance_ok("", [{"content": "Some content"}])
+    case = CASES["empty_query"]
+    assert _relevance_ok("", case["retrieved"])
 
 
 def test_relevance_empty_retrieved():
-    assert not _relevance_ok("test query", [])
+    case = CASES["empty_retrieved"]
+    assert not _relevance_ok(case["query"], case["retrieved"])
 
 
 def test_grounding_no_hallucinated_citations():
+    """Integration: with the seeded real KB, answering 'variable' must either
+    produce only citations whose chunks/labels exist, or refuse cleanly.
+    Needs a seeded DB (see README).
+    """
     from app.services.tutor.store import get_tutor_store
     from app.services.tutor.grounding import get_grounded_tutor
     store = get_tutor_store()
