@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "ragas_used": true,
+  "ragas_judge_model": "glm-5.3-flash",
+  "test_dataset": {
+    "total": 1283,
+    "on_material": 1185,
+    "off_material": 98,
+    "topic_coverage": [
+      "t_control",
+      "t_datatypes",
+      "t_dicts",
+      "t_exceptions",
+      "t_files",
+      "t_functions",
+      "t_lists",
+      "t_recursion",
+      "t_strings",
+      "t_tuples",
+      "t_variable"
+    ],
+    "query_type_distribution": {
+      "factual": 3,
+      "comparison": 3,
+      "conceptual": 3,
+      "procedural": 1,
+      "kb-derived": 1163,
+      "synthesis": 1,
+      "bilingual_comparison": 1,
+      "bilingual_factual": 10,
+      "off-material": 98
+    },
+    "language_distribution": {
+      "en": 1278,
+      "zh": 5
+    },
+    "domain_distribution": {
+      "unknown": 1185,
+      "geography": 8,
+      "cooking": 7,
+      "finance": 6,
+      "healthcare": 8,
+      "sports": 7,
+      "repair": 8,
+      "astronomy": 4,
+      "history": 4,
+      "education": 2,
+      "travel": 4,
+      "business": 4,
+      "physics": 4,
+      "art": 4,
+      "tech": 2,
+      "philosophy": 2,
+      "games": 2,
+      "economics": 4,
+      "pets": 2,
+      "technology": 2,
+      "crafts": 4,
+      "gardening": 2,
+      "literature": 2,
+      "geology": 2,
+      "wellness": 2,
+      "music": 2
+    },
+    "detailed_query_types": {
+      "factual": 3,
+      "comparison": 3,
+      "conceptual": 3,
+      "procedural": 1,
+      "kb-derived": 1163,
+      "synthesis": 1,
+      "bilingual_comparison": 1,
+      "bilingual_factual": 10,
+      "off-material": 98
+    },
+    "generated_at": "2026-10-12T16:54:15.898165"
+  },
+  "rag_metrics": {
+    "faithfulness": 0.0,
+    "answer_relevancy": 0.5410367423770127,
+    "context_precision": 0.0,
+    "context_recall": 0.0,
+    "ragas_used": true,
+    "answered_cases": 50,
+    "golden_cases": 50,
+    "refusal_rate": 1.0
+  },
+  "all_metrics": {
+    "faithfulness": 0.0,
+    "answer_relevancy": 0.5410367423770127,
+    "context_precision": 0.0,
+    "context_recall": 0.0,
+    "refusal_rate": 1.0
+  },
+  "elapsed_seconds": {
+    "grounded_tutor": 537.9,
+    "ragas_judge": 1243.1,
+    "total": 1781.0
+  }
+}

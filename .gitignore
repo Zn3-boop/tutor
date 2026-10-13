@@ -38,6 +38,9 @@ server/models/
 # Uploads (runtime data, never commit)
 server/app/data/uploads/
 
+# TTS runtime outputs (regenerate on demand)
+server/data/
+
 # Scratch / patch files
 _patch.py
 _patch_ragas.py

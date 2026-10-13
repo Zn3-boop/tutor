@@ -1,0 +1,190 @@
+{
+  "evaluation_summary": {
+    "timestamp": "2026-10-12T08:42:07.396096+00:00",
+    "overall_score": 0.911,
+    "component_scores": {
+      "cognitive_diagnosis": 0.821,
+      "adversarial_testing": 0.925,
+      "unit_tests": 1.0
+    },
+    "all_criteria_met": true,
+    "criteria_status": {
+      "✅ Cognitive Diagnosis Composite (>=70%)": "82.1%",
+      "✅ Adversarial Robustness (>=60%)": "92.5%",
+      "✅ Unit Tests Pass": "Yes",
+      "✅ Overall Score (>=75%)": "91.1%",
+      "  └ error_classification": "71.4%",
+      "  └ misconception_coverage": "100.0%",
+      "  └ remediation_relevance": "71.4%",
+      "  └ path_reasonableness": "85.7%"
+    }
+  },
+  "detailed_results": {
+    "cognitive_diagnosis": {
+      "module": "cognitive_diagnosis",
+      "timestamp": "2026-10-12T08:41:52.437784+00:00",
+      "accuracy": 0.714,
+      "precision": 0.909,
+      "recall": 0.714,
+      "f1": 0.8,
+      "total_cases": 14,
+      "per_type_breakdown": {
+        "conceptual_confusion": 1.0,
+        "unknown": 0.0,
+        "syntax_error": 0.6666666666666666,
+        "logic_error": 1.0,
+        "calculation_error": 1.0,
+        "missing_knowledge": 1.0
+      },
+      "failed_cases": [
+        {
+          "test_id": "diag_002",
+          "expected": "概念混淆",
+          "predicted": "未知错误",
+          "question": "global 变量的作用域是什么？"
+        },
+        {
+          "test_id": "diag_006",
+          "expected": "阅读理解问题",
+          "predicted": "未知错误",
+          "question": "Python 函数命名规则是什么？"
+        },
+        {
+          "test_id": "diag_010",
+          "expected": "逻辑错误",
+          "predicted": "未知错误",
+          "question": "range(5) 会产生哪些数字？"
+        },
+        {
+          "test_id": "diag_012",
+          "expected": "阅读理解问题",
+          "predicted": "语法错误",
+          "question": "list.sort() 的返回值是什么？"
+        }
+      ],
+      "misconception_coverage": {
+        "score": 1.0,
+        "covered_types": [
+          "conceptual_confusion",
+          "syntax_error",
+          "logic_error",
+          "calculation_error",
+          "reading_comprehension",
+          "missing_knowledge"
+        ],
+        "total_types": 6,
+        "per_type_case_counts": {
+          "conceptual_confusion": 4,
+          "syntax_error": 2,
+          "logic_error": 2,
+          "calculation_error": 2,
+          "reading_comprehension": 2,
+          "missing_knowledge": 2
+        }
+      },
+      "remediation_relevance": {
+        "score": 0.714,
+        "total_cases": 14,
+        "relevant_cases": 10
+      },
+      "path_reasonableness": {
+        "score": 0.857,
+        "path_length": 8,
+        "prerequisite_checks": 7,
+        "violations": [
+          {
+            "prerequisite": "t_variable",
+            "topic": "t_datatypes"
+          }
+        ]
+      },
+      "robustness_score": 0.905,
+      "dimensions": {
+        "error_classification": 0.714,
+        "misconception_coverage": 1.0,
+        "remediation_relevance": 0.714,
+        "path_reasonableness": 0.857,
+        "robustness": 0.905
+      },
+      "ragas_used": true,
+      "ragas_version": "0.2.15"
+    },
+    "adversarial_testing": {
+      "module": "adversarial_testing",
+      "timestamp": "2026-10-12T08:42:00.995909+00:00",
+      "eval_mode": "offline_bm25",
+      "success": true,
+      "metrics": {
+        "overall_robustness_index": 0.905,
+        "effective_robustness_index": 0.925,
+        "robustness_index_used": "effective_robustness_index",
+        "pass_rate": 0.867,
+        "refusal_accuracy": 1.0,
+        "clarification_accuracy": 1.0,
+        "reasoning_completeness": 1.0,
+        "edge_case_robustness": 0.5,
+        "offline_limited_count": 7
+      },
+      "report": {
+        "summary": {
+          "overall_robustness_index": 0.905,
+          "effective_robustness_index": 0.925,
+          "total_tests": 15,
+          "passed_tests": 13,
+          "failures": 2,
+          "offline_limited_count": 7,
+          "pass_rate": 0.867
+        },
+        "dimension_scores": {
+          "refusal_accuracy": {
+            "score": 1.0,
+            "grade": "A"
+          },
+          "clarification_accuracy": {
+            "score": 1.0,
+            "grade": "A"
+          },
+          "reasoning_completeness": {
+            "score": 1.0,
+            "grade": "A"
+          },
+          "edge_case_robustness": {
+            "score": 0.5,
+            "grade": "C"
+          }
+        },
+        "recommendations": [
+          "✅ 系统健壮性优秀"
+        ],
+        "failure_analysis": [
+          {
+            "test_id": "edg_002",
+            "type": "edge_case",
+            "description": "空查询",
+            "query": "",
+            "expected": "提示用户输入问题",
+            "error": "Expected refusal but got answer: Answer based on retrieved evidence: \n\n[1] (p.1) Think Python\nHow to Think Like a Computer Scientist\n",
+            "actual_response": "Answer based on retrieved evidence: \n\n[1] (p.1) Think Python\nHow to Think Like a Computer Scientist\n2nd Edition, Version 2.4.0\n[2] (p.3) Think Python\nHow to Think Like a Computer Scientist\n2nd Edition"
+          },
+          {
+            "test_id": "edg_003",
+            "type": "edge_case",
+            "description": "特殊字符查询",
+            "query": "`!@#$%^&*(){}[]|\\:\"<>?",
+            "expected": "安全处理特殊字符",
+            "error": "Expected refusal but got answer: Answer based on retrieved evidence: `!@#$%^&*(){}[]|\\:\"<>?\n\n[1] (p.147) you should at least attempt ",
+            "actual_response": "Answer based on retrieved evidence: `!@#$%^&*(){}[]|\\:\"<>?\n\n[1] (p.147) you should at least attempt the exercises before you read my solutions.\nExercise 13.1. Write a program that reads a ﬁle, breaks "
+          }
+        ]
+      }
+    },
+    "unit_tests": {
+      "module": "unit_tests",
+      "test_count": 44,
+      "passed_count": 44,
+      "failed_count": 0,
+      "status": "passed"
+    }
+  },
+  "recommendations": []
+}

@@ -1,0 +1,2482 @@
+{
+  "version": "1.0",
+  "description": "LLM-generated on-material test questions for human review",
+  "generated_at": "2026-10-12T17:02:58.905087",
+  "generator": "glm-5.3-flash",
+  "total": 118,
+  "by_type": {
+    "factual": 47,
+    "conceptual": 47,
+    "procedural": 24
+  },
+  "by_language": {
+    "en": 72,
+    "zh": 46
+  },
+  "questions": [
+    {
+      "query": "Who wrote 'Think Python: How to Think Like a Computer Scientist', and what edition/version is shown on the title page?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "The author is Allen Downey, and the title page identifies it as the 2nd Edition, Version 2.4.0.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_94373d3a3e4d"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What does the subtitle 'How to Think Like a Computer Scientist' suggest about the approach of the book?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It suggests that the book teaches not only Python syntax but also computational thinking, problem-solving, and reasoning like a computer scientist.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_94373d3a3e4d"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "If a student wanted to verify which version of the textbook they were using, what steps would they take using the title page?",
+      "query_type": "procedural",
+      "difficulty": "easy",
+      "expected_answer": "They would look at the title page and check the edition and version line; for this book it states '2nd Edition, Version 2.4.0'.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_94373d3a3e4d"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "《Think Python》这本书的作者是谁？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "作者是Allen Downey。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_94373d3a3e4d"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "《Think Python》这本书的副标题是什么？它主要想传达什么样的学习理念？",
+      "query_type": "conceptual",
+      "difficulty": "easy",
+      "expected_answer": "副标题是“How to Think Like a Computer Scientist”，强调像计算机科学家一样思考，即通过系统化、逻辑化的方式解决问题。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_94373d3a3e4d"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Who holds the copyright for this book and in what year was it copyrighted?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Allen Downey holds the copyright, and the book is copyrighted 2015.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What does the Creative Commons Attribution-NonCommercial 3.0 Unported License allow others to do with this book?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It grants permission to copy, distribute, and modify the book, but only for non-commercial purposes, provided the license terms are followed.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "According to the copyright page, what process would you follow to produce a printed version of this textbook from its source code?",
+      "query_type": "procedural",
+      "difficulty": "hard",
+      "expected_answer": "You would need to compile the LaTeX source code, which generates a device-independent representation, and then convert that representation to a format suitable for printing.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "《Think Python》这本书的版权所有者是谁？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Allen Downey。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "课程内容中提到“编译LATEX源码会生成设备无关的教科书表示”，这句话的含义是什么？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "意味着LATEX源码可以转换成多种设备或格式都能使用的通用表示，从而便于输出为不同格式并打印。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What version of Python was the second edition of Think Python updated to?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Python 3.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why did the author switch from Swampy to the turtle module?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "Because the turtle module is easier to install and more powerful than Swampy.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "According to the preface, how can beginners start running Python without installing it?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "By running Python in a browser.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据前言，第二版《Think Python》中新增了哪些主要内容？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "第二版更新到Python 3，增加了在浏览器中运行Python的指导，用标准turtle模块替换了Swampy，并新增了“The Goodies”章节。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "为什么作者要在每个章节末尾添加调试部分？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "为了提供寻找和避免bug的通用技术，并警告Python的常见陷阱，帮助读者提升调试能力。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Who holds the copyright for this book and in what year was it copyrighted?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Allen Downey holds the copyright, and the book is copyrighted 2015.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What does the Creative Commons Attribution-NonCommercial 3.0 Unported License allow others to do with this book?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It grants permission to copy, distribute, and modify the book, but only for non-commercial purposes, provided the license terms are followed.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "According to the copyright page, what process would you follow to produce a printed version of this textbook from its source code?",
+      "query_type": "procedural",
+      "difficulty": "hard",
+      "expected_answer": "You would need to compile the LaTeX source code, which generates a device-independent representation, and then convert that representation to a format suitable for printing.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "《Think Python》这本书的版权所有者是谁？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Allen Downey。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "课程内容中提到“编译LATEX源码会生成设备无关的教科书表示”，这句话的含义是什么？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "意味着LATEX源码可以转换成多种设备或格式都能使用的通用表示，从而便于输出为不同格式并打印。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What were the four goals the author set for writing the book?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Keep it short, be careful with vocabulary, build gradually, and focus on programming rather than the programming language.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why did the author decide to write his own book instead of using existing Java textbooks?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "Existing books were too large and detailed, and they caused a 'trap door effect' where students were overwhelmed around Chapter 5, leading to high failure rates and low achievement.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "How did the author plan to avoid the 'trap door effect' in his book structure?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "He built the content gradually by taking the most difficult topics and splitting them into a series of small steps so students received new material at a manageable pace.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "作者在什么时间决定编写自己的书？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "在1999年1月，第一节课开始前两周，作者决定写自己的书。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "什么是“陷阱门效应”（trap door effect）？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "陷阱门效应指教材开始时容易，但到某个章节（如第5章）突然变难，导致学生难以跟上。作者通过缓慢构建和拆分难点来避免这一点。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What version of Python was the second edition of Think Python updated to?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Python 3.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why did the author switch from Swampy to the turtle module?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "Because the turtle module is easier to install and more powerful than Swampy.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "According to the preface, how can beginners start running Python without installing it?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "By running Python in a browser.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据前言，第二版《Think Python》中新增了哪些主要内容？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "第二版更新到Python 3，增加了在浏览器中运行Python的指导，用标准turtle模块替换了Swampy，并新增了“The Goodies”章节。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "为什么作者要在每个章节末尾添加调试部分？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "为了提供寻找和避免bug的通用技术，并警告Python的常见陷阱，帮助读者提升调试能力。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Who holds the copyright for this book and in what year was it copyrighted?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Allen Downey holds the copyright, and the book is copyrighted 2015.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What does the Creative Commons Attribution-NonCommercial 3.0 Unported License allow others to do with this book?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It grants permission to copy, distribute, and modify the book, but only for non-commercial purposes, provided the license terms are followed.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "According to the copyright page, what process would you follow to produce a printed version of this textbook from its source code?",
+      "query_type": "procedural",
+      "difficulty": "hard",
+      "expected_answer": "You would need to compile the LaTeX source code, which generates a device-independent representation, and then convert that representation to a format suitable for printing.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "《Think Python》这本书的版权所有者是谁？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Allen Downey。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "课程内容中提到“编译LATEX源码会生成设备无关的教科书表示”，这句话的含义是什么？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "意味着LATEX源码可以转换成多种设备或格式都能使用的通用表示，从而便于输出为不同格式并打印。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2914e9d154a6"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What were the four goals the author set for writing the book?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Keep it short, be careful with vocabulary, build gradually, and focus on programming rather than the programming language.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why did the author decide to write his own book instead of using existing Java textbooks?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "Existing books were too large and detailed, and they caused a 'trap door effect' where students were overwhelmed around Chapter 5, leading to high failure rates and low achievement.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "How did the author plan to avoid the 'trap door effect' in his book structure?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "He built the content gradually by taking the most difficult topics and splitting them into a series of small steps so students received new material at a manageable pace.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "作者在什么时间决定编写自己的书？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "在1999年1月，第一节课开始前两周，作者决定写自己的书。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "什么是“陷阱门效应”（trap door effect）？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "陷阱门效应指教材开始时容易，但到某个章节（如第5章）突然变难，导致学生难以跟上。作者通过缓慢构建和拆分难点来避免这一点。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control"
+      ],
+      "expected_doc_ids": [
+        "unit_6b87b2a7fc4f"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What version of Python was the second edition of Think Python updated to?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Python 3.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why did the author switch from Swampy to the turtle module?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "Because the turtle module is easier to install and more powerful than Swampy.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "According to the preface, how can beginners start running Python without installing it?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "By running Python in a browser.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据前言，第二版《Think Python》中新增了哪些主要内容？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "第二版更新到Python 3，增加了在浏览器中运行Python的指导，用标准turtle模块替换了Swampy，并新增了“The Goodies”章节。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "为什么作者要在每个章节末尾添加调试部分？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "为了提供寻找和避免bug的通用技术，并警告Python的常见陷阱，帮助读者提升调试能力。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_10c0fd03ca8a"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Who wrote the Perl scripts to convert the LaTeX source for this book into HTML?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Jonah Cohen.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why does the author prefer that readers include at least part of the sentence where an error appears rather than just page and section numbers?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "Including part of the sentence makes it easier for the author to search for the error, whereas page and section numbers are fine but more difficult to work with.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "According to the course content, what is the recommended way to submit a correction or suggestion for the book?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "Send an email to feedback@thinkpython.com, include at least part of the sentence where the error appears (or page/section numbers), and if the change is made you will be added to the contributor list unless you ask to be omitted.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据课程内容，读者如果有建议或更正，应该发送电子邮件到哪个地址？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "feedback@thinkpython.com",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据课程内容，作者在根据读者反馈做出修改后，会怎样对待提出建议的读者？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "作者会将读者加入贡献者列表，除非该读者要求省略其名字。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What is the name of the section that discusses the differences between formal and natural languages?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Formal and natural languages (Section 1.6).",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why is it useful to understand the distinction between formal and natural languages when learning Python?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "Because Python is a formal language, and understanding its strict syntax and unambiguous rules helps you write correct programs and debug errors.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Based on the course outline, how would you run a Python program in script mode?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "You write the program in a file and then run it using the Python interpreter, typically by entering something like 'python filename.py' in the terminal.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "在Python中，执行整数除法（即丢弃小数部分）的算术运算符是什么？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Python中的整数除法运算符是双斜杠 //。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据课程内容，形式语言与自然语言的主要区别是什么？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "形式语言是人为设计的、语法严格且无歧义的语言（如编程语言），而自然语言是随着使用演变、充满歧义和冗余的人类语言。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What is the difference between a fruitful function and a void function?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "A fruitful function returns a value, while a void function does not.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_functions"
+      ],
+      "expected_doc_ids": [
+        "unit_3e0ef29b0839"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why are functions useful in programming?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "They help break problems into smaller pieces, avoid code duplication, and make programs easier to read, test, and debug.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_functions"
+      ],
+      "expected_doc_ids": [
+        "unit_3e0ef29b0839"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "How do you define a new function in Python?",
+      "query_type": "procedural",
+      "difficulty": "easy",
+      "expected_answer": "You use the def keyword, followed by the function name, parentheses with any parameters, a colon, and an indented body that contains the function's code.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_functions"
+      ],
+      "expected_doc_ids": [
+        "unit_3e0ef29b0839"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "在第3章的目录中，3.2小节的标题是什么？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "3.2小节的标题是'Math functions'。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_functions"
+      ],
+      "expected_doc_ids": [
+        "unit_3e0ef29b0839"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据第3章的目录，'有返回函数和空函数'（Fruitful functions and void functions）的主要区别是什么？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "有返回函数会返回一个值供调用者使用，而空函数执行操作但不返回任何值（在Python中返回None）。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_functions"
+      ],
+      "expected_doc_ids": [
+        "unit_3e0ef29b0839"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Who wrote the Perl scripts to convert the LaTeX source for this book into HTML?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Jonah Cohen.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why does the author prefer that readers include at least part of the sentence where an error appears rather than just page and section numbers?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "Including part of the sentence makes it easier for the author to search for the error, whereas page and section numbers are fine but more difficult to work with.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "According to the course content, what is the recommended way to submit a correction or suggestion for the book?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "Send an email to feedback@thinkpython.com, include at least part of the sentence where the error appears (or page/section numbers), and if the change is made you will be added to the contributor list unless you ask to be omitted.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据课程内容，读者如果有建议或更正，应该发送电子邮件到哪个地址？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "feedback@thinkpython.com",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据课程内容，作者在根据读者反馈做出修改后，会怎样对待提出建议的读者？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "作者会将读者加入贡献者列表，除非该读者要求省略其名字。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_strings",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_48bd8abd14b5"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Which contributor reported a missing function definition and several typos in Chapter 3?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Simon Dicon Montford reported a missing function definition and several typos in Chapter 3.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why might a textbook preface include a list of people who pointed out errors in the text?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It acknowledges contributors' efforts and documents the collaborative process of improving the book, while also giving credit and showing the text has been reviewed.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Based on the examples in the preface, what should you do if you find a typo or bug in this book?",
+      "query_type": "procedural",
+      "difficulty": "easy",
+      "expected_answer": "You should contact the author with details of the error, similar to how contributors like Kevin Parks and David Pool reported typos and corrections.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "谁报告了第3章中缺失的函数定义和多个拼写错误？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Simon Dicon Montford。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据课程内容，致谢部分列举了众多贡献者的不同帮助，这反映了本书开发过程中的什么特点？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "反映了本书经过多人审阅、反馈和修正的协作开发过程，体现了集体智慧对提高书籍质量的重要性。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Who reminded the authors that 'a error' is an error?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Jan Gundtofte-Bruun reminded them that 'a error' is an error.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What does this acknowledgments list suggest about the process of writing and maintaining a technical book?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It shows that the book is improved over time through community feedback, with many readers contributing corrections, clarifications, and suggestions.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "If you were editing the sentence 'a error', what change would you make and why?",
+      "query_type": "procedural",
+      "difficulty": "easy",
+      "expected_answer": "Change 'a' to 'an' because 'error' begins with a vowel sound, and then scan for similar article-noun mismatches.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Julie Peters 在本书的哪一部分发现了一个笔误？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "她在 Preface（前言）中发现了一个笔误。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据这段致谢内容，读者在本书的改进过程中扮演了怎样的角色？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "读者通过报告错误、提出澄清建议和翻译改进等方式，为书籍的修订和提升做出了重要贡献，说明这是一本在读者反馈下持续完善的作品。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Which contributor reported a missing function definition and several typos in Chapter 3?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Simon Dicon Montford reported a missing function definition and several typos in Chapter 3.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why might a textbook preface include a list of people who pointed out errors in the text?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It acknowledges contributors' efforts and documents the collaborative process of improving the book, while also giving credit and showing the text has been reviewed.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Based on the examples in the preface, what should you do if you find a typo or bug in this book?",
+      "query_type": "procedural",
+      "difficulty": "easy",
+      "expected_answer": "You should contact the author with details of the error, similar to how contributors like Kevin Parks and David Pool reported typos and corrections.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "谁报告了第3章中缺失的函数定义和多个拼写错误？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Simon Dicon Montford。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据课程内容，致谢部分列举了众多贡献者的不同帮助，这反映了本书开发过程中的什么特点？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "反映了本书经过多人审阅、反馈和修正的协作开发过程，体现了集体智慧对提高书籍质量的重要性。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_8e3d9d3c1918"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Who reminded the authors that 'a error' is an error?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Jan Gundtofte-Bruun reminded them that 'a error' is an error.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What does this acknowledgments list suggest about the process of writing and maintaining a technical book?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It shows that the book is improved over time through community feedback, with many readers contributing corrections, clarifications, and suggestions.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "If you were editing the sentence 'a error', what change would you make and why?",
+      "query_type": "procedural",
+      "difficulty": "easy",
+      "expected_answer": "Change 'a' to 'an' because 'error' begins with a vowel sound, and then scan for similar article-noun mismatches.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Julie Peters 在本书的哪一部分发现了一个笔误？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "她在 Preface（前言）中发现了一个笔误。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "根据这段致谢内容，读者在本书的改进过程中扮演了怎样的角色？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "读者通过报告错误、提出澄清建议和翻译改进等方式，为书籍的修订和提升做出了重要贡献，说明这是一本在读者反馈下持续完善的作品。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_ec75726e37ec"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Which contributor pointed out two round-off errors?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Martin Caspersen found two round-off errors.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why is naming a variable `input` considered problematic in Python?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It shadows the built-in `input` function, so subsequent calls to `input()` would attempt to call the variable instead of the built-in, leading to errors or unexpected behavior.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "If you discover that your code fails because you named a variable `input`, what steps should you take to fix it?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "Rename the variable (e.g., to `user_input`) and update all references to it so that the built-in `input` function is restored.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "谁指出变量名 input 遮蔽了一个内置函数？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Sven Hoexter 指出了这个问题。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "为什么使用 input 作为变量名可能造成问题？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "因为 input 是 Python 的内置函数，用它作为变量名会遮蔽该函数，导致后续代码无法按预期调用它。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Who found a missing word?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Nick King found a missing word.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2f223a18fe12"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why does the author include this long list of acknowledgments in the preface?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "The author is crediting and thanking the individuals who helped improve the book by reporting errors, typos, and suggestions.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2f223a18fe12"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "If you wanted to find out which person found an error in Chapter 8, what steps would you take using this preface?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "Scan the list for the phrase 'Chapter 8' and note the name next to it, which is Andrew Turner.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2f223a18fe12"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query_type": "factual",
+      "query": "根据课程内容，Max Hailperin 对这本书做出了哪些贡献？",
+      "difficulty": "easy",
+      "expected_answer": "Max Hailperin 发送了许多修正和建议，并且是《Concrete Abstractions》一书的作者之一。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2f223a18fe12"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query_type": "conceptual",
+      "query": "课程中列出如此多的贡献者及具体帮助，这主要体现了什么？",
+      "difficulty": "medium",
+      "expected_answer": "这体现了作者对他人反馈和帮助的重视与致谢，也说明书籍的完善依赖于众多读者的共同参与。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_lists"
+      ],
+      "expected_doc_ids": [
+        "unit_2f223a18fe12"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Which contributor pointed out two round-off errors?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Martin Caspersen found two round-off errors.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why is naming a variable `input` considered problematic in Python?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "It shadows the built-in `input` function, so subsequent calls to `input()` would attempt to call the variable instead of the built-in, leading to errors or unexpected behavior.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "If you discover that your code fails because you named a variable `input`, what steps should you take to fix it?",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "Rename the variable (e.g., to `user_input`) and update all references to it so that the built-in `input` function is restored.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "谁指出变量名 input 遮蔽了一个内置函数？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Sven Hoexter 指出了这个问题。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "为什么使用 input 作为变量名可能造成问题？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "因为 input 是 Python 的内置函数，用它作为变量名会遮蔽该函数，导致后续代码无法按预期调用它。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_control",
+        "t_functions",
+        "t_lists",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_c9c2350f8bd0"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "In which section of the book does it explain how to write comments in Python?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Section 2.7, titled 'Comments', covers how to write comments in Python.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What is the difference between an expression and a statement as discussed in Chapter 2?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "An expression is a combination of values, variables, and operators that evaluates to a single value, while a statement is an instruction that performs an action, such as an assignment statement.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Write a short Python program that assigns the number 42 to a variable named 'answer' and then uses an arithmetic operator to add 8 to it.",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "answer = 42\nanswer = answer + 8",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "在Python中，单行注释使用什么符号？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "井号（#）用于单行注释。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "请结合课程内容，简要说明表达式与语句的区别。",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "表达式是能够产生一个值的代码片段（如 2 + 3），而语句是执行某个操作或命令的代码单元（如赋值语句 x = 5），语句通常不直接产生值。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts"
+      ],
+      "expected_doc_ids": [
+        "unit_580a6533996e"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What does the floor division operator // do in Python?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Floor division // divides two numbers and returns the largest integer less than or equal to the exact quotient.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_6eb6ffdcefbc"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why is a base case essential in a recursive function?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "A base case stops the recursion by providing a condition under which the function returns a result without making another recursive call; without it, the function would recurse infinitely.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_6eb6ffdcefbc"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Write a recursive Python function that computes the factorial of a non-negative integer n.",
+      "query_type": "procedural",
+      "difficulty": "hard",
+      "expected_answer": "def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n - 1)",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_6eb6ffdcefbc"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "在课程第5章中，哪个小节专门讲解无限递归？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "5.10 小节 Infinite recursion 专门讲解无限递归。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_6eb6ffdcefbc"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "什么是递归？根据课程内容，它在哪一节被介绍？",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "递归是函数调用自身的一种编程技巧，在5.8节 Recursion 中介绍。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_dicts",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_6eb6ffdcefbc"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What does the floor division operator // do?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "It divides two numbers and rounds down to an integer.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_00ee1561a6a9"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Why is the modulus operator useful for checking whether one number is divisible by another?",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "Because if x % y is zero, then x is divisible by y, since modulus returns the remainder and a zero remainder means exact division.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_00ee1561a6a9"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Using floor division and modulus, write code to convert a movie runtime of 105 minutes into hours and remaining minutes.",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "hours = minutes // 60 and remainder = minutes % 60, so with minutes = 105, hours is 1 and remainder is 45.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_00ee1561a6a9"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "对于电影时长105分钟，使用地板除法运算符（//）计算得到的小时数是多少？",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "105 // 60 的结果是1，表示完整的小时数为1小时。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_00ee1561a6a9"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "如何使用取模运算符（%）判断一个数是否能被另一个数整除？",
+      "query_type": "conceptual",
+      "difficulty": "easy",
+      "expected_answer": "计算 x % y，如果结果为0，则说明x能被y整除；否则不能整除。",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_control",
+        "t_functions",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_00ee1561a6a9"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "zh",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "What are the three logical operators in Python?",
+      "query_type": "factual",
+      "difficulty": "easy",
+      "expected_answer": "The three logical operators are and, or, and not.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_dc61d08e5d34"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Explain the difference between the assignment operator (=) and the equality operator (==) in Python.",
+      "query_type": "conceptual",
+      "difficulty": "medium",
+      "expected_answer": "= assigns a value to a variable, while == compares two operands and returns True if they are equal and False otherwise.",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_dc61d08e5d34"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    },
+    {
+      "query": "Given an integer x, write a boolean expression that returns True if the rightmost digit of x is 5.",
+      "query_type": "procedural",
+      "difficulty": "medium",
+      "expected_answer": "x % 10 == 5",
+      "category": "on-material",
+      "topic_ids": [
+        "t_variable",
+        "t_datatypes",
+        "t_strings",
+        "t_control",
+        "t_dicts",
+        "t_recursion"
+      ],
+      "expected_doc_ids": [
+        "unit_dc61d08e5d34"
+      ],
+      "source_ids": [
+        "source_2bf175231d9c"
+      ],
+      "language": "en",
+      "generated_by": "llm-glm-5.3-flash"
+    }
+  ]
+}

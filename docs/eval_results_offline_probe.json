@@ -1,0 +1,214 @@
+{
+  "ok": true,
+  "ragas_used": false,
+  "test_dataset": {
+    "total": 1190,
+    "on_material": 1184,
+    "off_material": 6,
+    "topic_coverage": [
+      "t_control",
+      "t_datatypes",
+      "t_dicts",
+      "t_exceptions",
+      "t_files",
+      "t_functions",
+      "t_lists",
+      "t_recursion",
+      "t_strings",
+      "t_tuples",
+      "t_variable"
+    ],
+    "query_type_distribution": {
+      "factual": 3,
+      "comparison": 3,
+      "conceptual": 3,
+      "procedural": 1,
+      "kb-derived": 1162,
+      "synthesis": 1,
+      "bilingual_comparison": 1,
+      "bilingual_factual": 10,
+      "off-material": 6
+    }
+  },
+  "test_set_path": "D:\\ecv-tutor\\server\\tests\\test_set.json",
+  "rag_metrics": {
+    "faithfulness": 0.9154,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0778,
+    "context_recall": 0.2191,
+    "answered_cases": 547,
+    "golden_cases": 1182,
+    "refusal_rate": 1.0
+  },
+  "assessment_metrics": {
+    "mastery_gain_avg": 0.4898,
+    "question_repetition_rate_avg": 0.0
+  },
+  "all_metrics": {
+    "faithfulness": 0.9154,
+    "context_precision": 0.0778,
+    "context_recall": 0.2191,
+    "refusal_rate": 1.0,
+    "mastery_gain": 0.4898,
+    "question_repetition_rate": 0.0
+  },
+  "synthesis_performance": [
+    {
+      "count": 1,
+      "correct": 1,
+      "accuracy": 1.0
+    },
+    {
+      "count": 1,
+      "correct": 1,
+      "accuracy": 1.0
+    },
+    {
+      "count": 1,
+      "correct": 1,
+      "accuracy": 1.0
+    },
+    {
+      "count": 1,
+      "correct": 1,
+      "accuracy": 1.0
+    }
+  ],
+  "student_profiles": [
+    {
+      "profile": "fast",
+      "mastery_before": 0.25,
+      "mastery_after": 0.998,
+      "mastery_gain": 0.748,
+      "question_repetition_rate": 0.0,
+      "asked_questions": 20,
+      "difficulty_distribution": {
+        "easy": 10,
+        "medium": 5,
+        "hard": 5
+      }
+    },
+    {
+      "profile": "average",
+      "mastery_before": 0.25,
+      "mastery_after": 0.961,
+      "mastery_gain": 0.711,
+      "question_repetition_rate": 0.0,
+      "asked_questions": 20,
+      "difficulty_distribution": {
+        "easy": 10,
+        "medium": 5,
+        "hard": 5
+      }
+    },
+    {
+      "profile": "struggling",
+      "mastery_before": 0.25,
+      "mastery_after": 0.796,
+      "mastery_gain": 0.546,
+      "question_repetition_rate": 0.0,
+      "asked_questions": 20,
+      "difficulty_distribution": {
+        "easy": 10,
+        "medium": 5,
+        "hard": 5
+      }
+    },
+    {
+      "profile": "functions_weak",
+      "mastery_before": 0.25,
+      "mastery_after": 0.204,
+      "mastery_gain": -0.046,
+      "question_repetition_rate": 0.0,
+      "asked_questions": 20,
+      "difficulty_distribution": {
+        "easy": 10,
+        "medium": 5,
+        "hard": 5
+      }
+    }
+  ],
+  "profile_trajectories": [
+    {
+      "profile": "fast",
+      "mastery_before": 0.25,
+      "mastery_after": 0.998,
+      "mastery_gain": 0.748
+    },
+    {
+      "profile": "average",
+      "mastery_before": 0.25,
+      "mastery_after": 0.961,
+      "mastery_gain": 0.711
+    },
+    {
+      "profile": "struggling",
+      "mastery_before": 0.25,
+      "mastery_after": 0.796,
+      "mastery_gain": 0.546
+    },
+    {
+      "profile": "functions_weak",
+      "mastery_before": 0.25,
+      "mastery_after": 0.204,
+      "mastery_gain": -0.046
+    }
+  ],
+  "config": {
+    "n_sessions": 4,
+    "questions_per_session": 5,
+    "test_dataset_summary": {
+      "total": 1190,
+      "on_material": 1184,
+      "off_material": 6,
+      "topic_coverage": [
+        "t_control",
+        "t_datatypes",
+        "t_dicts",
+        "t_exceptions",
+        "t_files",
+        "t_functions",
+        "t_lists",
+        "t_recursion",
+        "t_strings",
+        "t_tuples",
+        "t_variable"
+      ],
+      "query_type_distribution": {
+        "factual": 3,
+        "comparison": 3,
+        "conceptual": 3,
+        "procedural": 1,
+        "kb-derived": 1162,
+        "synthesis": 1,
+        "bilingual_comparison": 1,
+        "bilingual_factual": 10,
+        "off-material": 6
+      },
+      "language_distribution": {
+        "en": 1185,
+        "zh": 5
+      },
+      "domain_distribution": {
+        "unknown": 1184,
+        "geography": 2,
+        "cooking": 2,
+        "literature": 2
+      },
+      "detailed_query_types": {
+        "factual": 3,
+        "comparison": 3,
+        "conceptual": 3,
+        "procedural": 1,
+        "kb-derived": 1162,
+        "synthesis": 1,
+        "bilingual_comparison": 1,
+        "bilingual_factual": 10,
+        "off-material": 6
+      },
+      "generated_at": "2026-10-11T13:49:36.844668"
+    },
+    "test_set_path": "D:\\ecv-tutor\\server\\tests\\test_set.json",
+    "seed": 42
+  }
+}
