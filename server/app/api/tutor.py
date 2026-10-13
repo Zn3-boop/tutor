@@ -1,3 +1,4 @@
+
 """REST API for the Track D Tutor subsystem.
 
 Exposes the multimodal ingestion, source-grounded chat, adaptive assessment and
@@ -7,11 +8,12 @@ learner-model (BKT) endpoints that the desktop dashboard calls.
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import uuid
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.services.tutor.store import get_tutor_store
@@ -20,19 +22,63 @@ from app.services.tutor.grounding import get_grounded_tutor
 from app.services.tutor.assessment import get_assessment_generator
 from app.services.tutor.evaluation import get_evaluation_runner
 from app.services.tutor.planning import get_learning_planner
+from app.services.tutor.graph_enhancer import get_graph_enhancer
+from app.services.tutor.error_analyzer import get_error_analyzer
+
+from app.services.tutor.bilingual_questions import list_bilingual_questions
 
 router = APIRouter(prefix="/tutor", tags=["tutor"])
 
+logger = logging.getLogger(__name__)
 _DEMO_MATERIALS_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "demo_materials")
 )
+
+class BilingualQuizRequest(BaseModel):
+    lang: str = Field(default="zh", description="zh | en")
+    num_questions: int = Field(default=5, ge=1, le=10)
+    scope_topic_ids: list[str] | None = None
+
+
+@router.post("/quiz/bilingual")
+async def quiz_bilingual(req: BilingualQuizRequest):
+    """Generate quiz from bilingual question bank."""
+    questions = list_bilingual_questions(
+        lang=req.lang,
+        topic_ids=req.scope_topic_ids,
+        difficulty=None
+    )[:req.num_questions]
+    
+    if not questions:
+        return {
+            "ok": False,
+            "error": "No questions available",
+            "questions": [],
+            "count": 0,
+            "assessment_id": str(uuid.uuid4()),
+        }
+    
+    return {
+        "ok": True,
+        "assessment_id": str(uuid.uuid4()),
+        "questions": [{
+            "question_id": q["id"],
+            "text": q["text"],
+            "options": q["options"],
+            "topic_ids": q["topic_ids"],
+            "difficulty": q["difficulty"],
+        } for q in questions],
+        "count": len(questions),
+        "mode": "bilingual",
+        "language": req.lang,
+    }
 
 
 # ---------------- request models ----------------
 class IngestTextRequest(BaseModel):
     title: str
     text: str
-    kind: str = Field(default="text", description="text | textbook | video")
+    kind: str = Field(default="text", description="text | textbook | transcript | video | slides | notes | lecture | paper")
     chunk_size: int = 900
 
 
@@ -45,11 +91,18 @@ class ChatRequest(BaseModel):
     query: str
     llm: bool = True
     top_k: int = 5
+    tts: bool = Field(default=False, description="Return audio URL for answer")
+    lang: str = Field(default="auto", description="聊天回答语言偏好: auto(随提问) | zh | en")
 
 
 class StudentCreateRequest(BaseModel):
     name: str = ""
     profile: dict = {}
+    lang: str = Field(default="auto", description="语言偏好(仅聊天回答): auto | zh | en")
+
+
+class StudentPreferenceRequest(BaseModel):
+    lang: str = Field(default="auto", description="auto | zh | en")
 
 
 class QuizRequest(BaseModel):
@@ -79,10 +132,15 @@ class FullEvalRequest(BaseModel):
     llm: bool = False
 
 
+class TestSetRequest(BaseModel):
+    regenerate: bool = False
+
+
 class DiagnosticRequest(BaseModel):
     student_id: str
     num_questions: int = Field(default=6, ge=1, le=30)
     llm: bool = False
+    scope_topic_ids: list[str] | None = None
 
 
 class FlashcardsRequest(BaseModel):
@@ -94,6 +152,17 @@ class StudyPlanRequest(BaseModel):
     student_id: str
     exam_days: int = Field(default=14, ge=1, le=90)
     sessions_per_week: int = Field(default=7, ge=1, le=35)
+    strategy: str = Field(default="static", description="static | rl")
+
+
+class ImageChatRequest(BaseModel):
+    image: str = Field(description="base64 encoded image or file path")
+    prompt: str = Field(default="", description="custom VLM parse prompt")
+    student_id: str = Field(default="")
+    tts: bool = Field(default=False, description="Return audio URL for answer")
+    llm: bool = True
+    top_k: int = 5
+    vlm_skip_load: bool = Field(default=False, description="debug: skip VLM inference, return mock text")
 
 
 def _require_student(store, student_id: str):
@@ -117,10 +186,14 @@ class TTSRequest(BaseModel):
 async def ingest_text(req: IngestTextRequest):
     ing = get_kb_ingestor()
     topics = get_tutor_store().list_topics_by_id()
-    result = await ing.ingest_text(
-        title=req.title, text=req.text, kind=req.kind,
+    kind = (req.kind or "text").strip().lower()
+    # transcript/video kinds parse timestamps (SRT / [HH:MM:SS]) into units
+    if kind in ("transcript", "video", "srt", "vtt"):
+        return await ing.ingest_transcript(title=req.title, text=req.text,
+                                           topics=topics or None)
+    return await ing.ingest_text(
+        title=req.title, text=req.text, kind=kind,
         topics=topics or None, chunk_size=req.chunk_size)
-    return result
 
 
 @router.post("/ingest/transcript")
@@ -182,18 +255,22 @@ async def ingest_upload(kind: str = Form("auto"), file: UploadFile = File(...)):
     """Multipart upload -> route by kind/extension, ingest, keep citations.
 
     kind can be: auto | pdf | pptx | docx | transcript | video | text
+                 | slides | notes | lecture | paper | image
     Video files (.mp4/.avi/.mkv/.mov) are routed to ingest_video (keyframe extraction).
+    Images are OCR'd (PaddleOCR/Tesseract) and ingested as text units.
     """
     ing = get_kb_ingestor()
     topics = get_tutor_store().list_topics_by_id()
     ext = (file.filename or "").rsplit(".", 1)[-1].lower() if file.filename else ""
     k = (kind or "auto").strip().lower()
     if k == "auto":
-        k = {"pdf": "pdf", "pptx": "pptx", "docx": "docx",
+        k = {"pdf": "pdf", "pptx": "pptx", "docx": "docx", "odt": "docx",
              "txt": "transcript", "vtt": "transcript", "srt": "transcript",
-             "md": "text",
+             "md": "text", "csv": "text",
              "mp4": "video", "avi": "video", "mkv": "video", "mov": "video",
-             "webm": "video", "flv": "video"}.get(ext, "text")
+             "webm": "video", "flv": "video",
+             "png": "image", "jpg": "image", "jpeg": "image",
+             "gif": "image", "webp": "image", "bmp": "image"}.get(ext, "text")
     path = await _save_upload(file)
     title = file.filename or os.path.basename(path)
     try:
@@ -201,13 +278,26 @@ async def ingest_upload(kind: str = Form("auto"), file: UploadFile = File(...)):
             return await ing.ingest_pdf(path=path, title=title)
         if k in ("pptx", "slides"):
             return await ing.ingest_pptx(path=path, title=title)
-        if k in ("docx", "textbook"):
+        if k in ("docx", "textbook", "paper", "odt"):
             return await ing.ingest_docx(path=path, title=title)
         if k == "video" and ext in ("mp4", "avi", "mkv", "mov", "webm", "flv"):
             return await ing.ingest_video(path=path, title=title)
+        if k == "image" and ext in ("png", "jpg", "jpeg", "gif", "webp", "bmp"):
+            # 图片素材：先 OCR 提取文字并摄入知识库，无法识别则交给「图片提问」
+            from app.services.ocr.service import get_ocr_service
+            ocr = get_ocr_service()
+            ocr_result = await asyncio.to_thread(ocr.recognize_image, path)
+            if ocr_result.success and ocr_result.text.strip():
+                ocr_text = ocr_result.text.strip()
+                return await ing.ingest_text(
+                    title=title, text=f"[OCR 图片文字]\n{ocr_text}",
+                    kind="text", topics=topics or None)
+            return {"ok": True, "source_id": "", "unit_count": 0,
+                    "message": "图片已保存，但 OCR 未能提取文字；请用「图片提问」做 VLM 理解",
+                    "path": path}
         with open(path, "r", encoding="utf-8", errors="replace") as f:
             text = f.read()
-        if k in ("transcript", "video"):
+        if k in ("transcript", "video", "srt", "vtt"):
             return await ing.ingest_transcript(title=title, text=text,
                                                topics=topics or None)
         return await ing.ingest_text(title=title, text=text,
@@ -267,6 +357,34 @@ async def open_source(source_id: str = "", unit_id: str = "", origin_label: str 
     return res
 
 
+@router.get("/topic-source/{topic_id}")
+async def topic_source(topic_id: str):
+    """Resolve study material for a weak topic into clickable citations.
+
+    Returns per-topic units with source titles so the report can offer
+    ``open`` links into the matching source viewer. Used by the diagnostic
+    report weak-topic list (report cards).
+    """
+    from app.services.tutor.citations import resolve_citation
+    from fastapi import HTTPException
+    store = get_tutor_store()
+    units = store.units_by_topics([topic_id])
+    if not units:
+        raise HTTPException(status_code=404, detail=f"no material for topic: {topic_id}")
+    citations = []
+    for u in units:
+        rec = resolve_citation(store, unit_id=u["unit_id"])
+        if rec.get("ok"):
+            citations.append({
+                "unit_id": u.get("unit_id", ""),
+                "source_title": u.get("source_title", ""),
+                "origin_label": u.get("origin", {}).get("label", ""),
+                "resolved": rec,
+            })
+    return {"topic_id": topic_id, "citations": citations,
+            "count": len(citations)}
+
+
 @router.get("/files")
 async def serve_source_file(path: str = ""):
     """Serve a bundled course-material file (PDF / PPTX / SRT) so the browser
@@ -310,7 +428,7 @@ async def kb_summary():
 @router.post("/students")
 async def create_student(req: StudentCreateRequest):
     store = get_tutor_store()
-    return store.create_student(name=req.name, profile=req.profile)
+    return store.create_student(name=req.name, profile=req.profile, lang=req.lang)
 
 
 @router.get("/students")
@@ -328,21 +446,167 @@ async def get_student(student_id: str):
                 student, store.list_topics_by_id())}
 
 
+@router.put("/students/{student_id}/preference")
+async def update_student_preference(student_id: str, req: StudentPreferenceRequest):
+    """P1: student chat-language preference (auto | zh | en), persisted per learner.
+
+    Only affects the *conversation* language; quiz questions, flashcards and
+    graph annotations stay in the source-material language (no auto-translation).
+    """
+    if req.lang not in ("auto", "zh", "en"):
+        raise HTTPException(status_code=400, detail="lang must be one of: auto | zh | en")
+    store = get_tutor_store()
+    _require_student(store, student_id)
+    updated = store.update_student(student_id, {"lang": req.lang})
+    logger.info("student %s language preference set to %s", student_id, req.lang)
+    return {"student": updated}
+
+
 # ---------------- grounded chat ----------------
+async def _safe_answer(tutor, query: str, *, llm: bool, top_k: int = 4,
+                       pref_lang: str = "auto") -> dict[str, Any]:
+    """Run the grounded answer pipeline without letting a 500 escape to the UI.
+
+    Any unexpected failure (retrieval hiccup, LLM outage, …) is logged with its
+    traceback and degrades to the offline path first, then to a clear refusal —
+    so the Tutor Chat panel always gets a usable JSON response.
+
+    ``pref_lang`` (P1): student-chosen chat language (auto / zh / en). It is
+    threaded into ``tutor.answer`` so the LLM prompt can enforce the student's
+    language preference for the conversation.
+    """
+    try:
+        return await tutor.answer(query, llm=llm, top_k=top_k, pref_lang=pref_lang)
+    except Exception as exc:
+        logger.warning("chat answer failed (llm=%s): %s", llm, exc, exc_info=True)
+        try:
+            return await tutor.answer(query, llm=False, top_k=top_k, pref_lang=pref_lang)
+        except Exception as exc2:
+            logger.warning("offline chat answer also failed: %s", exc2, exc_info=True)
+            return {
+                "query": query,
+                "status": "refused",
+                "refuse_reason": f"服务暂时不可用，请稍后重试（{type(exc).__name__}）",
+                # off_material 仅用于「课程内容确实不覆盖该问题」的业务拒答；
+                # 这里是服务异常，绝不是超纲，前端不应渲染「🚫 超纲查询」。
+                "off_material": False,
+                "answer": "",
+                "citations": [],
+                "evidence": [],
+                "retrieval_meta": {"retrieved": 0, "vector_count": 0, "bm25_count": 0},
+            }
+
+
 @router.post("/chat")
 async def chat(req: ChatRequest):
     tutor = get_grounded_tutor()
-    return await tutor.answer(req.query, llm=req.llm, top_k=req.top_k)
+    result = await _safe_answer(tutor, req.query, llm=req.llm, top_k=req.top_k,
+                                pref_lang=req.lang)
+    # TTS audio generation for the answer
+    if req.tts and result.get("answer"):
+        from app.services.tts import get_tts_service
+        tts_svc = get_tts_service()
+        lang = result.get("detected_language", "zh")
+        tts_result = await tts_svc.generate(
+            text=result["answer"], lang=lang, filename=""
+        )
+        if tts_result["ok"]:
+            result["tts_url"] = f"/tutor/tts/{tts_result['filename']}"
+            result["tts_duration_s"] = tts_result.get("duration_s", 0)
+    return result
+
+
+@router.post("/chat/image")
+async def chat_image(req: ImageChatRequest):
+    """VLM image question: parse image -> extract text -> Tutor answer with citations."""
+    from app.services.vlm.parser import get_vlm_parser
+    parser = get_vlm_parser()
+    parse_result = await parser.parse_question_image(
+        req.image, prompt=req.prompt or None,
+        skip_load=req.vlm_skip_load,
+    )
+    if not parse_result["ok"]:
+        return {
+            "status": "refused",
+            "answer": "",
+            "refuse_reason": f"图片解析失败: {parse_result['error']}",
+            "vlm_parse": parse_result,
+        }
+    extracted_text = parse_result["text"]
+    store = get_tutor_store() if req.student_id else None
+    tutor = get_grounded_tutor(store)
+    answer_result = await _safe_answer(tutor, extracted_text, llm=req.llm, top_k=req.top_k)
+    answer_result["vlm_parse"] = parse_result
+    # TTS audio generation for the answer
+    if req.tts and answer_result.get("answer"):
+        from app.services.tts import get_tts_service
+        tts_svc = get_tts_service()
+        lang = answer_result.get("detected_language", "zh")
+        tts_result = await tts_svc.generate(
+            text=answer_result["answer"], lang=lang, filename=""
+        )
+        if tts_result["ok"]:
+            answer_result["tts_url"] = f"/tutor/tts/{tts_result['filename']}"
+            answer_result["tts_duration_s"] = tts_result.get("duration_s", 0)
+    return answer_result
+
+
+@router.post("/vlm/warmup")
+async def vlm_warmup():
+    """Preload VLM model weights into memory (async, non-blocking).
+
+    Triggers background loading of the local VLM provider (Qwen2.5-VL-3B).
+    The heavy CPU work runs in a separate thread so the event loop is not
+    blocked.  Returns immediately; check progress with GET /vlm/status.
+    """
+    from app.services.vlm.provider import provider, cloud_provider
+    import asyncio
+
+    local_enabled = provider.enabled
+    cloud_enabled = cloud_provider.enabled
+
+    if local_enabled and not provider.loaded and not provider.is_loading:
+        asyncio.create_task(provider.warmup())
+        return {"status": "warming", "provider": "local", "cloud_ready": cloud_enabled}
+    return {
+        "status": provider.status,
+        "provider": "local" if local_enabled else "none",
+        "cloud_ready": cloud_enabled,
+    }
+
+
+@router.get("/vlm/status")
+async def vlm_status():
+    """Check VLM provider status: idle / warming / loaded / failed."""
+    from app.services.vlm.provider import provider, cloud_provider
+    return {
+        "local": {
+            "enabled": provider.enabled,
+            "status": provider.status,
+            "loaded": provider.loaded,
+            "is_loading": provider.is_loading,
+            "error": provider.load_error,
+        },
+        "cloud": {"enabled": cloud_provider.enabled},
+    }
 
 
 @router.post("/chat/{student_id}")
 async def chat_for_student(student_id: str, req: ChatRequest):
     """Chat that also persists the session against a learner and offers a
-    personalised preface based on the student's weakest topics."""
+    personalised preface based on the student's weakest topics.
+
+    P1: the student's stored ``lang`` preference (auto/zh/en) is enforced for
+    the answer language; a per-request ``req.lang`` override wins if present.
+    """
     store = get_tutor_store()
-    _require_student(store, student_id)
+    student = _require_student(store, student_id)
+    pref_lang = (student.get("lang") or "auto") if isinstance(student, dict) else "auto"
+    if req.lang in ("zh", "en"):
+        pref_lang = req.lang
     tutor = get_grounded_tutor(store)
-    result = await tutor.answer(req.query, llm=req.llm, top_k=req.top_k)
+    result = await _safe_answer(tutor, req.query, llm=req.llm, top_k=req.top_k,
+                                pref_lang=pref_lang)
     return result
 
 
@@ -359,7 +623,7 @@ async def generate_quiz(req: QuizRequest):
 
 @router.post("/diagnostic")
 async def diagnostic(req: DiagnosticRequest):
-    """Onboarding diagnostic for a learner across all topics.
+    """Onboarding diagnostic for a learner (optionally scoped to selected topics).
 
     New students take this first to discover weak topics; BKT mastery is updated
     as they answer. Returns tagged assessment used by /submit and /diagnostic/finalize.
@@ -367,6 +631,13 @@ async def diagnostic(req: DiagnosticRequest):
     store = get_tutor_store()
     student = _require_student(store, req.student_id)
     gen = get_assessment_generator(store)
+    if req.scope_topic_ids:
+        return await gen.generate_diagnostic(
+            student,
+            num_questions=req.num_questions,
+            llm=req.llm,
+            scope_topic_ids=req.scope_topic_ids,
+        )
     return await gen.generate_diagnostic(student, num_questions=req.num_questions,
                                          llm=req.llm)
 
@@ -374,8 +645,10 @@ async def diagnostic(req: DiagnosticRequest):
 # ---------------- learning planning (6a/6b/6c) ----------------
 @router.get("/graph")
 async def course_graph(student_id: str = ""):
-    """Topic + prerequisite graph for the course-flow visualisation."""
-    return get_learning_planner().course_graph(student_id=student_id)
+    """Topic + prerequisite graph (with per-node annotations & edge labels)
+    for the course-flow visualisation."""
+    enhancer = get_graph_enhancer()
+    return enhancer.build_enhanced_graph(student_id=student_id)
 
 
 @router.post("/flashcards")
@@ -388,13 +661,17 @@ async def flashcards(req: FlashcardsRequest):
 
 @router.post("/study-plan")
 async def study_plan(req: StudyPlanRequest):
-    """Personalized study schedule: weak-first + prerequisites + forgetting curve."""
+    """Personalized study schedule: weak-first + prerequisites + forgetting curve.
+
+    strategy: "static" (default) or "rl" (reinforcement learning enhanced).
+    """
     store = get_tutor_store()
     _require_student(store, req.student_id)
     planner = get_learning_planner(store)
     return planner.study_plan(
         req.student_id, exam_days=req.exam_days,
-        sessions_per_week=req.sessions_per_week)
+        sessions_per_week=req.sessions_per_week,
+        strategy=req.strategy)
 
 
 
@@ -446,6 +723,45 @@ async def mastery_trajectory(student_id: str):
     store = get_tutor_store()
     student = _require_student(store, student_id)
     return {"student_id": student_id, "trajectory": student.get("mastery_traj", [])}
+
+
+@router.get("/mastery-stream/{student_id}")
+async def mastery_stream(student_id: str):
+    """SSE stream: pushes mastery updates after each answer submission.
+
+    Frontend uses EventSource to listen. Falls back gracefully if SSE
+    is not supported (client can poll /mastery-trajectory instead).
+    """
+    store = get_tutor_store()
+    _require_student(store, student_id)
+
+    async def event_generator():
+        from app.services.tutor.learner import LearnerModel
+        import json as _json
+        learner = LearnerModel()
+        topics = store.list_topics_by_id()
+        last_snapshot: str = ""
+        for _ in range(300):
+            student = store.get_student(student_id)
+            if student is None:
+                break
+            mastery = learner.mastery_summary(student, topics)
+            snapshot = _json.dumps(mastery, sort_keys=True)
+            if snapshot != last_snapshot:
+                last_snapshot = snapshot
+                yield f"data: {snapshot}\n\n"
+            await asyncio.sleep(2)
+        yield "data: {\"event\": \"done\"}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 # ---------------- demo scaffold ---------------- 
@@ -526,21 +842,35 @@ async def demo_warmup():
 
 @router.post("/tts")
 async def tts(req: TTSRequest):
-    """Edge-TTS read-aloud of any text (quiz feedback / report summary)."""
+    """TTS read-aloud (Edge-TTS online, falls back to Windows SAPI5 offline)."""
     from fastapi.responses import Response
     if not (req.text or "").strip():
         raise HTTPException(status_code=400, detail="empty text")
-    import edge_tts
-    communicate = edge_tts.Communicate(req.text.strip(), req.voice)
-    audio = bytearray()
-    async for chunk in communicate.stream():
-        if chunk.get("type") == "audio":
-            audio.extend(chunk.get("data") or b"")
-    if not audio:
-        raise HTTPException(status_code=502, detail="edge-tts produced no audio")
-    return Response(content=bytes(audio), media_type="audio/mpeg",
-                    headers={"Content-Disposition": "inline; filename=tts.mp3",
+    from app.services.tts import get_tts_service
+    result = await get_tts_service().generate(req.text.strip(), lang="zh", filename="")
+    if not result["ok"]:
+        raise HTTPException(status_code=502, detail=result.get("error", "tts unavailable"))
+    ext = os.path.splitext(result["path"])[1].lower()
+    media = "audio/wav" if ext == ".wav" else "audio/mpeg"
+    with open(result["path"], "rb") as f:
+        data = f.read()
+    return Response(content=data, media_type=media,
+                    headers={"Content-Disposition": f"inline; filename=tts{ext}",
                              "Cache-Control": "no-store"})
+
+
+@router.get("/tts/{filename}")
+async def tts_audio(filename: str):
+    """Serve a previously generated TTS audio file (used by chat tts_url)."""
+    from fastapi.responses import FileResponse
+    from app.services.tts import get_tts_service
+    svc = get_tts_service()
+    # Reject path traversal: only allow names inside the TTS output dir.
+    safe = os.path.basename(filename)
+    path = os.path.abspath(os.path.join(svc.output_dir, safe))
+    if not path.startswith(os.path.abspath(svc.output_dir)) or not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="audio not found")
+    return FileResponse(path, media_type="audio/wav" if safe.endswith(".wav") else "audio/mpeg")
 
 
 @router.get("/verify-question/{question_id}")
@@ -559,14 +889,70 @@ async def simulate(req: SimulateRequest):
         seed=req.seed)
 
 
+_eval_tasks: dict[str, dict] = {}
+
+
+async def _background_eval(task_id: str, req: FullEvalRequest):
+    try:
+        _eval_tasks[task_id]["status"] = "running"
+        runner = get_evaluation_runner()
+        result = await runner.run_full_evaluation(
+            n_sessions=req.n_sessions,
+            questions_per_session=req.questions_per_session,
+            seed=req.seed, llm=req.llm)
+        _eval_tasks[task_id]["status"] = "done"
+        _eval_tasks[task_id]["result"] = result
+    except Exception as e:
+        _eval_tasks[task_id]["status"] = "failed"
+        _eval_tasks[task_id]["error"] = str(e)
+
+
 @router.post("/evaluate/full")
 async def evaluate_full(req: FullEvalRequest):
-    """Day6 full benchmark: RAG faithfulness/context metrics + mastery/repetition."""
-    runner = get_evaluation_runner()
-    return await runner.run_full_evaluation(
-        n_sessions=req.n_sessions,
-        questions_per_session=req.questions_per_session,
-        seed=req.seed, llm=req.llm)
+    """Full-pipeline benchmark: runs as background task, returns task_id for polling."""
+    task_id = str(uuid.uuid4())
+    _eval_tasks[task_id] = {"status": "pending", "result": None, "error": None}
+    asyncio.create_task(_background_eval(task_id, req))
+    return {"task_id": task_id, "status": "pending"}
+
+
+@router.get("/evaluate/status/{task_id}")
+async def evaluate_status(task_id: str):
+    task = _eval_tasks.get(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="task not found")
+    return {"task_id": task_id, **task}
+
+
+@router.post("/test-set")
+async def get_test_set(req: TestSetRequest = TestSetRequest()):
+    """Get the current evaluation test set with metadata."""
+    from app.services.eval.dataset import build_comprehensive_test_set
+    from app.services.tutor.store import get_tutor_store
+    
+    store = get_tutor_store()
+    result = build_comprehensive_test_set(store)
+    return {
+        "ok": True,
+        "summary": result["summary"],
+        "test_set_path": result["path"],
+        "case_count": len(result["cases"]),
+    }
+
+
+@router.get("/test-set/summary")
+async def get_test_set_summary():
+    """Get a lightweight summary of the current test set."""
+    from app.services.tutor.store import get_tutor_store
+    from app.services.eval.dataset import build_comprehensive_test_set
+    
+    store = get_tutor_store()
+    result = build_comprehensive_test_set(store)
+    return {
+        "ok": True,
+        "summary": result["summary"],
+        "case_count": len(result["cases"]),
+    }
 
 
 @router.post("/evaluate/rag")
@@ -607,3 +993,217 @@ async def vlm_caption(req: VLMCaptionRequest):
         data = f.read()
     caption = await describe_image_fallback(prompt=req.prompt, image=data)
     return {"ok": bool(caption), "caption": caption}
+
+
+# ---------------- wrong questions (错题本) ----------------
+@router.get("/wrong-questions/{student_id}")
+async def list_wrong_questions(student_id: str, topic_id: str = ""):
+    store = get_tutor_store()
+    _require_student(store, student_id)
+    return {"wrong_questions": store.list_wrong_questions(student_id, topic_id=topic_id)}
+
+
+class WrongQuestionResolveRequest(BaseModel):
+    wq_id: str
+
+
+@router.post("/wrong-questions/resolve")
+async def resolve_wrong_question(req: WrongQuestionResolveRequest):
+    store = get_tutor_store()
+    result = store.mark_wrong_question_resolved(req.wq_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="wrong question record not found")
+    return {"ok": True, "wq_id": req.wq_id, "resolved": True}
+
+
+@router.delete("/wrong-questions/{wq_id}")
+async def delete_wrong_question(wq_id: str):
+    store = get_tutor_store()
+    ok = store.delete_wrong_question(wq_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="wrong question record not found")
+    return {"ok": True, "wq_id": wq_id}
+
+
+@router.delete("/sources/{source_id}")
+async def delete_source(source_id: str):
+    """Delete a source and all its associated units."""
+    store = get_tutor_store()
+    ok = store.delete_source(source_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail=f"source {source_id} not found")
+    return {"ok": True, "source_id": source_id}
+
+
+@router.post("/wrong-questions/{student_id}/retest")
+async def retest_wrong_questions(student_id: str, num_questions: int = 6):
+    """Generate a quiz scoped to the topics of the student's unresolved wrong questions."""
+    store = get_tutor_store()
+    student = _require_student(store, student_id)
+    wrong = store.list_wrong_questions(student_id)
+    unresolved = [w for w in wrong if not w.get("resolved")]
+    if not unresolved:
+        return {"ok": False, "error": "没有未解决的错题", "questions": []}
+    topic_ids = list({tid for w in unresolved for tid in w.get("topic_ids", [])})
+    gen = get_assessment_generator(store)
+    return await gen.generate_quiz(student, topic_ids, num_questions=num_questions, llm=False)
+
+
+# ---------------- enhanced graph ----------------
+@router.get("/enhanced-graph/{student_id}")
+async def get_enhanced_graph(student_id: str):
+    """获取增强版知识图谱（含统计指标、簇分析、推荐路径）。"""
+    enhancer = get_graph_enhancer()
+    result = enhancer.build_enhanced_graph(student_id)
+    return result
+
+
+@router.get("/enhanced-graph")
+async def get_global_graph():
+    """获取全局知识图谱（无学生数据）。"""
+    enhancer = get_graph_enhancer()
+    return enhancer.build_enhanced_graph("")
+
+
+# ---------------- error analysis ----------------
+class ErrorAnalysisRequest(BaseModel):
+    student_id: str
+    assessment_id: str | None = None
+
+
+@router.post("/analyze-errors")
+async def analyze_errors(req: ErrorAnalysisRequest):
+    """分析学生的错误模式（基于最近评估或指定评估）。"""
+    store = get_tutor_store()
+    student = _require_student(store, req.student_id)
+    
+    analyzer = get_error_analyzer()
+    
+    # 获取评估结果
+    assessments = student.get("assessments") or {}
+    if req.assessment_id:
+        assessment = assessments.get(req.assessment_id)
+        if not assessment:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"assessment {req.assessment_id} not found"
+            )
+    else:
+        # 使用最近的评估
+        if not assessments:
+            return {
+                "ok": False,
+                "error": "该学生尚无评估记录",
+                "error_distribution": {},
+                "recommendations": []
+            }
+        latest_id = max(assessments.keys(), key=lambda k: assessments[k].get("timestamp", ""))
+        assessment = assessments[latest_id]
+    
+    # 构建问题结果列表
+    quiz_results = []
+    for q_record in assessment.get("questions", []):
+        if not q_record.get("is_correct"):
+            quiz_results.append({
+                "question": q_record.get("question", ""),
+                "student_answer": q_record.get("chosen", ""),
+                "correct_answer": q_record.get("answer", ""),
+                "explanation": q_record.get("explanation"),
+                "topic_ids": q_record.get("topic_ids", []),
+                "is_correct": False
+            })
+    
+    if not quiz_results:
+        return {
+            "ok": True,
+            "error_distribution": {},
+            "strongest_misconceptions": [],
+            "recommendations": [],
+            "message": "该评估无错误记录"
+        }
+    
+    # 执行错误分析
+    analysis = analyzer.analyze_quiz_errors(quiz_results)
+    
+    # 生成个性化建议
+    recommendations = []
+    for misconception in analysis.get("strongest_misconceptions", []):
+        error_type = misconception["error_type"]
+        error_label = misconception["label"]
+        
+        # 从分类法获取建议
+        from app.services.tutor.error_analyzer import MISCONCEPTION_TAXONOMY
+        hint = MISCONCEPTION_TAXONOMY.get(error_type, {}).get(
+            "description", "需要加强该方面练习"
+        )
+        
+        recommendations.append({
+            "priority": misconception["count"],
+            "error_type": error_type,
+            "label": error_label,
+            "issue": hint,
+            "focus_hint": f"该主题出错 {misconception['count']} 次 (占比 {misconception['percentage']}%)"
+        })
+    
+    return {
+        "ok": True,
+        "student_id": req.student_id,
+        "assessment_id": req.assessment_id or assessment.get("assessment_id"),
+        "total_errors": analysis.get("total_errors", 0),
+        "error_distribution": analysis.get("error_distribution", {}),
+        "topic_error_patterns": analysis.get("topic_error_patterns", {}),
+        "strongest_misconceptions": analysis.get("strongest_misconceptions", []),
+        "recommendations": recommendations,
+        "analysis_timestamp": analysis.get("analysis_timestamp")
+    }
+
+
+# ---------------- adversarial testing ----------------
+class AdversarialTestRequest(BaseModel):
+    full_suite: bool = True
+    test_types: list[str] | None = None
+    max_retries: int = 3
+    timeout_seconds: float = 10.0
+
+
+@router.post("/adversarial-test")
+async def run_adversarial_tests(req: AdversarialTestRequest):
+    """运行对抗性测试套件。"""
+    from app.services.eval.adversarial_test import get_adversarial_test_runner
+    
+    runner = get_adversatorial_test_runner()
+    runner.max_retries = req.max_retries
+    runner.timeout_seconds = req.timeout_seconds
+    
+    if req.full_suite:
+        runner.build_test_suite()
+    elif req.test_types:
+        # 过滤特定类型的测试
+        all_cases = runner.build_test_suite()
+        from app.services.eval.adversarial_test import TestCaseType
+        runner.test_cases = [
+            tc for tc in all_cases 
+            if tc.type.value in req.test_types
+        ]
+    
+    suite_result = await runner.run_full_suite()
+    report = runner.generate_report(suite_result)
+    
+    return {
+        "ok": True,
+        **report
+    }
+
+
+@router.get("/adversarial-test/report")
+async def get_last_adversarial_report():
+    """获取上次对抗性测试的报告缓存。"""
+    # 这里可以集成到现有的评估报告中
+    # 暂时返回空结构供前端轮询
+    return {
+        "ok": True,
+        "message": "尚未运行对抗性测试，请 POST 到 /adversarial-test",
+        "last_run": None
+    }
+    gen = get_assessment_generator(store)
+    return await gen.generate_quiz(student, topic_ids, num_questions=num_questions, llm=False)
