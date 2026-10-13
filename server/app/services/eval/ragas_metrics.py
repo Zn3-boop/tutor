@@ -1,4 +1,4 @@
-"""Faithfulness + context precision/recall metrics (Day6).
+"""Faithfulness + context precision/recall metrics.
 
 Integrates RAGAS when it is installed and the util wasm + an LLM provider are
 available; otherwise degrades gracefully to deterministic lexical probes so the

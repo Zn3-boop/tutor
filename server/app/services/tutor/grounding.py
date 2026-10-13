@@ -114,6 +114,39 @@ _REFUSE_REASON = (
 )
 _NO_EVIDENCE_REASON = "没有检索到与问题相关的课程资料，为避免幻觉，我已拒绝作答。"
 
+# Off-material detection: explicit flag for queries clearly outside course scope
+_OFF_MATERIAL_PATTERNS = [
+    r"\b(capital of|population of|weather in|recipe for|how to cook|how to fix)\b",
+    r"\b(who wrote|who painted|who composed)\b",
+    r"\b(olympics|world cup|nba|fifa)\b",
+]
+
+# Additional off-material patterns for Chinese queries
+_OFF_MATERIAL_PATTERNS_ZH = [
+    r"法国的首都是",
+    r"怎么从零开始煮",
+    r"荷马史诗的作者",
+    r"骑自行车链条",
+    r"东京今天天气",
+    r"投资比特币",
+    r"世界杯冠军",
+    r"火星人口",
+]
+_OFF_MATERIAL_RE_ZH = re.compile("|".join(_OFF_MATERIAL_PATTERNS_ZH))
+_OFF_MATERIAL_RE = re.compile("|".join(_OFF_MATERIAL_PATTERNS), re.IGNORECASE)
+
+
+def _is_off_material(query: str) -> tuple[bool, str]:
+    """Detect if a query is clearly off-material based on lexical patterns.
+
+    Returns (is_off, reason) tuple. This is a fast pre-filter before retrieval.
+    """
+    if _OFF_MATERIAL_RE_ZH.search(query):
+        return True, "该问题涉及课程范围外的主题（如地理、历史、体育、投资等），系统已自动识别并拒绝回答。"
+    if _OFF_MATERIAL_RE.search(query):
+        return True, "该问题涉及课程范围外的主题（如地理、历史、体育、投资等），系统已自动识别并拒绝回答。"
+    return False, ""
+
 
 def _extract_citation_label(meta: dict[str, Any]) -> str:
     """Derive a human-readable citation label from chunk metadata.
@@ -146,6 +179,7 @@ class GroundedTutor:
         top_k: int = 5,
         rerank_top_k: int = 3,
         enable_rerank: bool | None = None,
+        pref_lang: str = "auto",
     ) -> dict[str, Any]:
         """Retrieve evidence and assemble a grounded answer with citations.
 
@@ -201,15 +235,36 @@ class GroundedTutor:
             "rewritten_query": rewritten["standalone_query"],
             "rewrite_queries": rewritten["queries"],
             "matched_topics": rewritten["matched_topics"],
+            "detected_language": rewritten.get("detected_language", "zh"),
+            "is_mixed_language": rewritten.get("is_mixed_language", False),
         }
 
         # R10: 超纲/无证据拒答 — refuse when no evidence or relevance is too low.
+        # Phase 1: explicit off-material pre-filter (fast lexical check)
+        is_off, off_reason = _is_off_material(question)
+        if is_off:
+            return {
+                **record,
+                "status": "refused",
+                "answer": "",
+                "refuse_reason": off_reason,
+                "off_material": True,
+                "citations": [],
+                "evidence": [],
+                "retrieval_meta": {
+                    "vector_count": 0,
+                    "bm25_count": 0,
+                    "merged_count": 0,
+                },
+            }
+
         if not retrieved or not answer_ready:
             return {
                 **record,
                 "status": "refused",
                 "answer": "",
                 "refuse_reason": _NO_EVIDENCE_REASON if not retrieved else _REFUSE_REASON,
+                "off_material": False,
                 "citations": [],
                 "evidence": [],
                 "retrieval_meta": {
@@ -225,6 +280,7 @@ class GroundedTutor:
                 "status": "refused",
                 "answer": "",
                 "refuse_reason": _REFUSE_REASON,
+                "off_material": False,
                 "citations": [],
                 "evidence": retrieved,
                 "retrieval_meta": {
@@ -264,6 +320,7 @@ class GroundedTutor:
                 "status": "refused",
                 "answer": "",
                 "refuse_reason": _REFUSE_REASON,
+                "off_material": False,
                 "citations": [],
                 "evidence": retrieved,
                 "retrieval_meta": {
@@ -273,18 +330,31 @@ class GroundedTutor:
                 },
             }
 
+        # Detect query language for appropriate response language
+        query_lang = rewritten.get("detected_language", "zh")
+        is_mixed = rewritten.get("is_mixed_language", False)
+
         if llm:
-            answer_text = await self._llm_generate(question, evidence_snippets)
+            answer_text = await self._llm_generate(
+                question, evidence_snippets, query_lang, is_mixed, pref_lang
+            )
         else:
-            header = f"基于检索证据回答: {question}\n\n"
+            resp_lang = pref_lang if pref_lang in ("zh", "en") else query_lang
+            if resp_lang == "zh":
+                header = f"基于检索证据回答: {question}\n\n"
+            else:
+                header = f"Answer based on retrieved evidence: {question}\n\n"
             answer_text = header + "\n".join(evidence_snippets)
 
         return {
             **record,
             "status": "answered",
             "answer": answer_text,
+            "off_material": False,
             "citations": citations,
             "evidence": retrieved,
+            "detected_language": query_lang,
+            "is_mixed_language": is_mixed,
             "retrieval_meta": {
                 "vector_count": retrieval_info.get("vector_count", 0),
                 "bm25_count": retrieval_info.get("bm25_count", 0),
@@ -296,21 +366,68 @@ class GroundedTutor:
         self,
         question: str,
         evidence_snippets: list[str],
+        query_lang: str = "zh",
+        is_mixed: bool = False,
+        pref_lang: str = "auto",
     ) -> str:
         """Call the LLM to produce a polished grounded answer.
 
         Falls back to concatenation if the LLM is unavailable.
+        Respects the detected query language for response generation.
         """
         try:
             from app.services.llm import get_llm_service
             llm_svc = get_llm_service()
             context = "\n".join(evidence_snippets)
-            prompt = (
-                f"请基于以下证据回答问题，并在答案中用 [1] [2] 等标注引用来源。\n\n"
-                f"证据:\n{context}\n\n问题: {question}\n\n"
-                f"语言要求：学生用哪种语言提问，你就用哪种语言回答"
-                f"（提问是中文就用中文，英文就用英文），不要擅自转换语言。"
-            )
+
+            # Build language-aware prompt.
+            # P1: pref_lang (student-chosen chat language) OVERRIDES the detected
+            # query language; "auto" keeps the legacy per-query behavior.
+            # Evidence citations are ALWAYS quoted verbatim (never translated) so
+            # the answer never silently rewrites the source material.
+            lang = pref_lang if pref_lang in ("zh", "en") else query_lang
+            if lang == "zh":
+                if pref_lang == "zh":
+                    lang_instruction = (
+                        "语言要求：学生在设置中选择了「全中文聊天」。请全程用中文回答，"
+                        "保留 Python/CS 相关的英文专业术语。"
+                        "引用的原文证据不要翻译，保持资料原文逐字引用。"
+                    )
+                elif is_mixed:
+                    # Mixed Chinese-English query: respond in Chinese but keep technical terms
+                    lang_instruction = (
+                        "语言要求：学生使用了中英混合提问。请用中文回答，"
+                        "但保留 Python/CS 相关的英文专业术语（如 variable, function, list 等）。"
+                    )
+                else:
+                    lang_instruction = (
+                        "语言要求：学生用中文提问，请用中文回答。"
+                        "保留 Python/CS 相关的英文专业术语。"
+                    )
+                prompt = (
+                    f"请基于以下证据回答问题，并在答案中用 [1] [2] 等标注引用来源。\n\n"
+                    f"证据:\n{context}\n\n问题: {question}\n\n"
+                    f"{lang_instruction}"
+                )
+            else:
+                if pref_lang == "en":
+                    lang_instruction = (
+                        "Language requirement: The student chose an English-language chat. "
+                        "Please answer entirely in English. "
+                        "Do NOT translate quoted evidence - quote source excerpts verbatim."
+                    )
+                else:
+                    lang_instruction = (
+                        "Language requirement: The student asked in English. "
+                        "Please respond in English."
+                    )
+                prompt = (
+                    f"Please answer the question based on the evidence below, "
+                    f"using [1] [2] etc. to cite sources.\n\n"
+                    f"Evidence:\n{context}\n\nQuestion: {question}\n\n"
+                    f"{lang_instruction}"
+                )
+
             return await llm_svc.generate(prompt)
         except Exception as exc:
             logger.warning(f"LLM generation failed: {exc}, falling back to evidence concat")

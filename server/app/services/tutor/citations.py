@@ -145,6 +145,30 @@ def resolve_citation(store, *, source_id: str = "", unit_id: str = "",
             out["viewer"] = "transcript"
         return out
 
+    # A transcript source (SRT) may carry a manifest-bound video_url: resolve to
+    # a video-seek reference so Phase 3's viewer can play the exact moment.
+    if kind == "transcript":
+        ts = origin.get("timestamp", "") or ""
+        secs = _seconds(ts) if ts else None
+        meta = source.get("meta", {}) or {}
+        video_url = meta.get("video_url", "")
+        yt_id = meta.get("video_id", "")
+        out: dict[str, Any] = {
+            **base,
+            "viewer": "video" if video_url else "transcript",
+            "timestamp": ts,
+            "seconds": secs,
+            "paragraph_index": origin.get("index", 0),
+        }
+        if video_url:
+            out["video_url"] = video_url + (f"#t={secs}" if secs is not None else "")
+        if yt_id:
+            out["youtube_url"] = (
+                f"https://www.youtube.com/watch?v={yt_id}"
+                + (f"&t={secs}" if secs is not None else "")
+            )
+        return out
+
     # Any other kind (textbook text etc.): fall back to the transcript viewer.
     base.update({"viewer": "transcript", "paragraph_index": origin.get("index", 0)})
     return base

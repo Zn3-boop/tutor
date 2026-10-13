@@ -23,6 +23,7 @@ from typing import Any
 
 from app.services.tutor.learner import LearnerModel
 from app.services.tutor.store import TutorStore
+from app.services.translation.client import translate_text, translation_enabled
 
 # Spaced-repetition (EBH-style) review intervals, in days, after first exposure.
 _SPACED_INTERVALS = [1, 3, 7, 14, 30]
@@ -97,6 +98,15 @@ class LearningPlanner:
             if len(cards) >= limit:
                 break
 
+        if translation_enabled() and student.get("lang") == "zh":
+            for card in cards:
+                front = (card.get("front") or "").strip()
+                if front:
+                    res = translate_text(front)
+                    if res.translated:
+                        card["front"] = res.text
+                        card["translated"] = True
+
         return {"ok": True, "count": len(cards), "cards": cards}
 
     def _card_from_unit(self, unit: dict, topic: dict) -> dict | None:
@@ -139,7 +149,8 @@ class LearningPlanner:
 
     # ---------------- 6c. study plan ----------------
     def study_plan(self, student_id: str, exam_days: int,
-                   sessions_per_week: int) -> dict[str, Any]:
+                   sessions_per_week: int,
+                   strategy: str = "static") -> dict[str, Any]:
         student = self.store.get_student(student_id)
         if student is None:
             return {"ok": False, "error": "student not found: {}".format(student_id)}
@@ -149,10 +160,6 @@ class LearningPlanner:
         for tid in topics:
             mastery[tid] = self.learner.mastery_level(student, tid)
 
-        # Prerequisite ordering first, weak-first as the secondary priority.
-        # Compute each topic's topological level (longest prerequisite chain) and
-        # sort by (level, mastery) so a dependent topic is NEVER scheduled before
-        # its prerequisites, regardless of how weak either topic is.
         ordered = self._toposort(topics)
         level: dict[str, int] = {tid: 0 for tid in topics}
         for tid in ordered:
@@ -160,11 +167,21 @@ class LearningPlanner:
                     if p in topics]
             if pres:
                 level[tid] = 1 + max(level[p] for p in pres)
-        ordered.sort(key=lambda tid: (
-            level.get(tid, 0),
-            mastery.get(tid, self.learner._fresh_params()["pL0"]),
-            tid,
-        ))
+
+        # Task 13: 每日任务内容增强 —— 预先为每个主题收集真实教材材料标签，
+        # 供 _activity 生成「学习目标 / 教材材料 / 练习任务 / 复习要求」。
+        materials_by_topic = self._topic_materials(topics)
+
+        if strategy == "rl":
+            ordered = self._rl_reorder(
+                student, topics, mastery, ordered, level,
+            )
+        else:
+            ordered.sort(key=lambda tid: (
+                level.get(tid, 0),
+                mastery.get(tid, self.learner._fresh_params()["pL0"]),
+                tid,
+            ))
 
         def _session_count(tid: str) -> int:
             m = mastery.get(tid, 0.25)
@@ -193,7 +210,7 @@ class LearningPlanner:
                           else "掌握度 {:.2f}, 巩固".format(m))
             else:
                 reason = "掌握良好, 轻复习"
-            schedule.append(self._activity(day, tid, topics, "学习", reason))
+            schedule.append(self._activity(day, tid, topics, "学习", reason, materials_by_topic))
             for gi, gap in enumerate(gaps, start=1):
                 rday = day + sum(gaps[:gi])
                 if rday > exam_days:
@@ -207,7 +224,8 @@ class LearningPlanner:
                 day_load[rday] = day_load.get(rday, 0) + 1
                 schedule.append(self._activity(
                     rday, tid, topics, "复习",
-                    "遗忘曲线间隔复习 (第{}次)".format(gi + 1)))
+                    "遗忘曲线间隔复习 (第{}次)".format(gi + 1),
+                    materials_by_topic, review_round=gi + 1))
 
         schedule.sort(key=lambda a: (a["day"], a["topic_name"]))
 
@@ -225,6 +243,7 @@ class LearningPlanner:
             "student_id": student_id,
             "exam_days": exam_days,
             "sessions_per_week": sessions_per_week,
+            "strategy": strategy,
             "days": days,
             "stats": {
                 "total_activities": len(schedule),
@@ -234,17 +253,133 @@ class LearningPlanner:
             },
         }
 
-    @staticmethod
-    def _activity(day: int, tid: str, topics: dict, action: str,
-                  reason: str) -> dict[str, Any]:
+    def _topic_materials(self, topics: dict[str, dict]) -> dict[str, list[str]]:
+        """为每个主题收集真实教材材料标签（来源标题 + 页码/段落），供每日任务使用。
+
+        规则：从 store 中找出 topic_ids 命中该主题的 units，聚合其来源标题与
+        origin 标签（如 p.12 / slide 3 / text#5）；最多取前 3 条去重结果。
+        没有资料时回退为「《主题名》相关章节」通用提示，保证字段非空。
+        """
+        sources = {s["source_id"]: s for s in self.store.list_sources()}
+        index: dict[str, list[str]] = {}
+        for u in self.store.list_units():
+            origin = u.get("origin") or {}
+            plabel = origin.get("label") or ""
+            if not plabel and origin.get("page") is not None:
+                plabel = "p.{}".format(origin["page"])
+            src = sources.get(u.get("source_id") or "") or {}
+            base = src.get("title") or src.get("name") or ""
+            item = "{}{}".format(base, "（{}）".format(plabel) if plabel else "")
+            if not item:
+                continue
+            for tid in u.get("topic_ids") or []:
+                if tid not in topics:
+                    continue
+                bucket = index.setdefault(tid, [])
+                if item not in bucket:
+                    bucket.append(item)
+        out: dict[str, list[str]] = {}
+        for tid, t in topics.items():
+            labels = index.get(tid) or []
+            if not labels:
+                labels = ["《{}》相关章节".format(t.get("name", tid))]
+            out[tid] = labels[:3]
+        return out
+
+    def _activity(
+        self,
+        day: int,
+        tid: str,
+        topics: dict,
+        action: str,
+        reason: str,
+        materials_by_topic: dict[str, list[str]] | None = None,
+        review_round: int = 0,
+    ) -> dict[str, Any]:
+        """构造一条每日学习/复习任务，包含：
+        - 学习目标 learning_goal：核心概念 + 掌握度目标
+        - 教材材料 materials：真实来源标题/页码（来自 _topic_materials）
+        - 练习任务 exercise：针对学习/复习动作给出可执行的练习与错题复盘
+        - 复习要求 review_requirement：前置知识 / 遗忘曲线间隔复习自测要求
+        """
         t = topics.get(tid, {})
+        name = t.get("name", tid)
+        concepts = t.get("concepts", [])
+        mats = (materials_by_topic or {}).get(tid) or []
+
+        learning_goal = "掌握 {} 核心概念".format(name)
+        if concepts:
+            learning_goal += "：{}".format("、".join(concepts[:3]))
+        learning_goal += "，目标掌握度 ≥ 70%"
+
+        materials = "；".join(mats[:2]) if mats else "《{}》相关章节".format(name)
+
+        if action == "复习":
+            exercise = "重做「{}」的 Quiz 3-5 题 / 闪卡，并复盘上次错题".format(name)
+            if review_round > 0:
+                exercise += "（第 {} 轮间隔复习）".format(review_round)
+            pre_names = [topics.get(p, {}).get("name", p)
+                         for p in (t.get("prerequisites") or []) if p in topics]
+            if pre_names:
+                review_requirement = "复习前先回顾前置主题：{}；完成后自测确认掌握度回升 ≥70%".format(
+                    "、".join(pre_names[:3]))
+            else:
+                review_requirement = "按遗忘曲线完成本轮复习，并用 3 道自测题确认掌握度未衰减"
+        else:
+            exercise = "完成「{}」的练习题（Quiz 3-5 题），记录错题并入错题本".format(name)
+            pre_names = [topics.get(p, {}).get("name", p)
+                         for p in (t.get("prerequisites") or []) if p in topics]
+            review_requirement = (
+                "先复习前置主题：{}（掌握度不足 70% 时优先补基础）".format("、".join(pre_names[:3]))
+                if pre_names else "无需前置复习，可直接开始学习")
+
         return {
             "day": day,
             "topic_id": tid,
-            "topic_name": t.get("name", tid),
+            "topic_name": name,
             "action": action,
             "reason": reason,
+            "learning_goal": learning_goal,
+            "materials": materials,
+            "exercise": exercise,
+            "review_requirement": review_requirement,
         }
+
+    def _rl_reorder(
+        self,
+        student: dict,
+        topics: dict[str, dict],
+        mastery: dict[str, float],
+        ordered: list[str],
+        level: dict[str, int],
+    ) -> list[str]:
+        """使用 RL 策略重新排序 topic 列表。"""
+        try:
+            from app.services.tutor.rl_planner import get_rl_planner, RLState
+            rl = get_rl_planner()
+            prerequisites_map: dict[str, list[str]] = {}
+            for tid, t in topics.items():
+                prerequisites_map[tid] = [p for p in (t.get("prerequisites") or []) if p in topics]
+            history = student.get("mastery_traj", [])[-20:]
+            state = RLState(
+                mastery_vector=mastery,
+                topic_graph=prerequisites_map,
+                history_window=history,
+            )
+            actions = rl.recommend_path(state, ordered, prerequisites_map, top_k=len(ordered))
+            action_order = {a.topic_id: i for i, a in enumerate(actions)}
+            remaining = [tid for tid in ordered if tid not in action_order]
+            reordered = [a.topic_id for a in actions] + remaining
+            return reordered
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"RL reorder failed, fallback to static: {e}")
+            ordered.sort(key=lambda tid: (
+                level.get(tid, 0),
+                mastery.get(tid, self.learner._fresh_params()["pL0"]),
+                tid,
+            ))
+            return ordered
 
     @staticmethod
     def _toposort(topics: dict[str, dict]) -> list[str]:

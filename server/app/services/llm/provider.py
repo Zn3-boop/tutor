@@ -9,8 +9,8 @@ import httpx as httpx
 
 logger = logging.getLogger(__name__)
 
-# 加载 .env 文件 (provider.py -> services -> app -> apps -> server)
-_env_file = Path(__file__).parent.parent.parent / ".env"
+# 加载 .env 文件 (provider.py -> llm -> services -> app -> server)
+_env_file = Path(__file__).parent.parent.parent.parent / ".env"
 if _env_file.exists():
     from dotenv import load_dotenv
     load_dotenv(_env_file)
@@ -211,13 +211,21 @@ class LLMProvider:
             except Exception:
                 pass
 
+        if not (user_prompt and user_prompt.strip()):
+            raise LLMProviderError("user_prompt must not be empty")
+
+        # Several OpenAI-compatible gateways reject messages with empty content
+        # (HTTP 400 "message content must not be empty"). Skip any empty parts
+        # instead of sending them upstream.
+        messages: list[dict[str, Any]] = []
+        if system_prompt and system_prompt.strip():
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": user_prompt})
+
         payload: dict[str, Any] = {
             "model": model,
             "temperature": temperature,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
+            "messages": messages,
         }
         if response_format:
             payload["response_format"] = response_format

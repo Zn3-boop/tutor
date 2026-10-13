@@ -101,3 +101,96 @@ def test_short_sentence_no_question():
     unit = {"unit_id": "u3", "source_id": src_id, "text": "Hi.", "origin": {"label": "test#1"}, "topic_ids": ["t_test"]}
     result = gen._pick_sentence(unit)
     assert result is None
+
+
+def test_difficulty_maps_mastery():
+    gen = AssessmentGenerator(_make_store())
+    assert gen._difficulty_for_mastery(0.1) == "easy"
+    assert gen._difficulty_for_mastery(0.3) == "easy"
+    assert gen._difficulty_for_mastery(0.5) == "medium"
+    assert gen._difficulty_for_mastery(0.65) == "medium"
+    assert gen._difficulty_for_mastery(0.8) == "hard"
+    assert gen._difficulty_for_mastery(0.95) == "hard"
+
+
+def test_distractor_limit_by_difficulty():
+    gen = AssessmentGenerator(_make_store())
+    assert gen._distractor_limit("easy") == 1
+    assert gen._distractor_limit("medium") == 2
+    assert gen._distractor_limit("hard") == 3
+
+
+def test_submit_answer_records_wrong_question():
+    store = _make_store()
+    gen = AssessmentGenerator(store)
+    gen.learner = LearnerModel()
+    src_id = store.add_source(title="Test Source", kind="text", path="")["source_id"]
+    store.add_unit(source_id=src_id,
+        text="The print function outputs text to the console terminal.",
+        origin={"index": 0, "label": "test#1"}, topic_ids=["t_test"], concepts=["test"])
+    student = store.create_student(name="Wrong Q Student", profile={"level": "beginner"})
+
+    async def _run():
+        quiz = await gen.generate_quiz(student, ["t_test"], num_questions=1, llm=False)
+        assert quiz["ok"]
+        q = quiz["questions"][0]
+        q_full = store.get_question(q["question_id"])
+        wrong_choice = next((o for o in q_full["options"] if o != q_full["answer"]), "")
+        return await gen.submit_answer(student, quiz["assessment_id"], q["question_id"], wrong_choice)
+
+    result = asyncio.run(_run())
+    assert not result["correct"]
+    wrong_qs = store.list_wrong_questions(student["student_id"])
+    assert len(wrong_qs) == 1
+    assert wrong_qs[0]["question_id"] == result["question"]["question_id"]
+    assert wrong_qs[0]["resolved"] is False
+
+
+def test_submit_correct_no_wrong_question():
+    store = _make_store()
+    gen = AssessmentGenerator(store)
+    gen.learner = LearnerModel()
+    src_id = store.add_source(title="Test Source", kind="text", path="")["source_id"]
+    store.add_unit(source_id=src_id,
+        text="The input function reads a value from the keyboard terminal.",
+        origin={"index": 0, "label": "test#1"}, topic_ids=["t_test"], concepts=["test"])
+    student = store.create_student(name="Correct Q Student", profile={"level": "beginner"})
+
+    async def _run():
+        quiz = await gen.generate_quiz(student, ["t_test"], num_questions=1, llm=False)
+        assert quiz["ok"]
+        q = quiz["questions"][0]
+        q_full = store.get_question(q["question_id"])
+        return await gen.submit_answer(student, quiz["assessment_id"], q["question_id"], q_full["answer"])
+
+    result = asyncio.run(_run())
+    assert result["correct"]
+    wrong_qs = store.list_wrong_questions(student["student_id"])
+    assert len(wrong_qs) == 0
+
+
+def test_verify_question_valid():
+    store = _make_store()
+    gen = AssessmentGenerator(store)
+    qid = store.add_question(
+        text="What is 2+2?", qtype="mcq",
+        options=["3", "4", "5"], answer="4",
+        topic_ids=["t_math"], source_ids=[],
+        difficulty="easy", answer_key="1", explanation="Basic addition")
+    result = gen.verify_question(qid)
+    assert result["valid"]
+    assert result["issues"] == []
+
+
+def test_verify_question_invalid():
+    store = _make_store()
+    gen = AssessmentGenerator(store)
+    qid = store.add_question(
+        text="", qtype="mcq",
+        options=["only_one"], answer="only_one",
+        topic_ids=["t_math"], source_ids=[],
+        difficulty="easy", answer_key="0", explanation="")
+    result = gen.verify_question(qid)
+    assert not result["valid"]
+    assert "empty stem" in result["issues"]
+    assert "fewer than 2 options" in result["issues"]

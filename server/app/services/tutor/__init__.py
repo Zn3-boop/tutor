@@ -1,3 +1,15 @@
+"""Tutor services package."""
+from .error_analyzer import get_error_analyzer, ErrorAnalyzer
+from .graph_enhancer import get_graph_enhancer, GraphEnhancer
+
+__all__ = [
+    "get_error_analyzer", "ErrorAnalyzer",
+    "get_graph_enhancer", "GraphEnhancer"
+]
+"""Tutor services package."""
+from .error_analyzer import get_error_analyzer, ErrorAnalyzer
+
+__all__ = ["get_error_analyzer", "ErrorAnalyzer"]
 """Track D — Personalized Tutoring & Adaptive Learning subsystem.
 
 A source-grounded AI study companion built on top of the existing RAG stack.

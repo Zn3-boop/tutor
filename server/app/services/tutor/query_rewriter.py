@@ -27,6 +27,10 @@ _FILLERS = [
     r"tell me (?:about|what|how) ",
     r"为什么(?:要|会)",
     r"请问",
+    r"how to ",
+    r"how do (?:you|i) ",
+    r"what does \w+ mean",
+    r"define ",
 ]
 
 
@@ -44,7 +48,19 @@ def _strip_fillers(query: str) -> str:
 
 
 def _tokens(text: str) -> set[str]:
+    """Extract meaningful tokens: English words and Chinese characters."""
     return set(re.findall(r"[a-z][a-z0-9_]{1,}|\u4e00-\u9fff", text.lower()))
+
+
+def _detect_language(query: str) -> str:
+    """Detect the primary language of the query.
+
+    Returns 'zh' if Chinese characters are present, 'en' otherwise.
+    Mixed queries are treated as Chinese-preferring since the UI is Chinese.
+    """
+    if re.search(r"[\u4e00-\u9fff]", query):
+        return "zh"
+    return "en"
 
 
 def inline_rewrite(query: str, topics: dict[str, dict] | None = None) -> dict[str, Any]:
@@ -90,9 +106,14 @@ def inline_rewrite(query: str, topics: dict[str, dict] | None = None) -> dict[st
     seen: set[str] = set()
     queries = [q for q in queries if not (q.lower() in seen or seen.add(q.lower()))]
 
+    # Language detection for downstream response generation
+    detected_language = _detect_language(query)
+
     return {
         "standalone_query": standalone,
         "queries": queries,
         "method": "rule",
         "matched_topics": matched,
+        "detected_language": detected_language,
+        "is_mixed_language": detected_language == "zh" and re.search(r"[a-zA-Z]{3,}", query) is not None,
     }

@@ -129,3 +129,73 @@ def test_mastery_summary_format():
         assert "n_correct" in entry
         assert "n_wrong" in entry
         assert 0.0 <= entry["mastery"] <= 1.0
+
+
+def test_course_graph_with_student_mastery():
+    store = _make_store_with_topics()
+    planner = LearningPlanner(store)
+    student = store.create_student(name="Graph Mastery Test", profile={"level": "beginner"})
+    learner = LearnerModel()
+    for _ in range(5):
+        learner.observe(student, "t_base", correct=True)
+    store.save_student(student)
+    graph = planner.course_graph(student_id=student["student_id"])
+    node_map = {n["id"]: n for n in graph["nodes"]}
+    assert node_map["t_base"]["mastery"] is not None
+    assert node_map["t_base"]["mastery"] >= 0.5
+    assert node_map["t_independent"]["mastery"] is None or node_map["t_independent"]["mastery"] < 0.5
+
+
+def test_forgetting_curve_intervals():
+    from app.services.tutor.planning import _SPACED_INTERVALS
+    assert _SPACED_INTERVALS == [1, 3, 7, 14, 30]
+    assert all(_SPACED_INTERVALS[i] < _SPACED_INTERVALS[i + 1]
+               for i in range(len(_SPACED_INTERVALS) - 1))
+
+
+def test_study_plan_covers_all_topics():
+    store = _make_store_with_topics()
+    planner = LearningPlanner(store)
+    student = store.create_student(name="Coverage Test", profile={"level": "beginner"})
+    plan = planner.study_plan(student["student_id"], exam_days=30, sessions_per_week=7)
+    assert plan["ok"]
+    covered = set()
+    for day_info in plan["days"]:
+        for activity in day_info["activities"]:
+            covered.add(activity["topic_id"])
+    all_topics = set(store.list_topics_by_id().keys())
+    assert covered == all_topics, f"Missing topics: {all_topics - covered}"
+
+
+def test_wrong_questions_crud():
+    store = TutorStore(data_dir=tempfile.mkdtemp(prefix="test_wq_"))
+    student = store.create_student(name="WQ Test")
+    wq = store.add_wrong_question(
+        student_id=student["student_id"],
+        question_id="q_001",
+        question_text="What is x?",
+        chosen="wrong",
+        correct_answer="right",
+        topic_ids=["t_a", "t_b"],
+        assessment_id="a_001",
+    )
+    assert "wq_id" in wq
+    assert wq["resolved"] is False
+
+    listed = store.list_wrong_questions(student["student_id"])
+    assert len(listed) == 1
+    assert listed[0]["question_id"] == "q_001"
+
+    filtered = store.list_wrong_questions(student["student_id"], topic_id="t_a")
+    assert len(filtered) == 1
+    filtered_b = store.list_wrong_questions(student["student_id"], topic_id="t_b")
+    assert len(filtered_b) == 1
+    filtered_c = store.list_wrong_questions(student["student_id"], topic_id="t_c")
+    assert len(filtered_c) == 0
+
+    resolved = store.mark_wrong_question_resolved(wq["wq_id"])
+    assert resolved["resolved"] is True
+
+    ok = store.delete_wrong_question(wq["wq_id"])
+    assert ok
+    assert len(store.list_wrong_questions(student["student_id"])) == 0

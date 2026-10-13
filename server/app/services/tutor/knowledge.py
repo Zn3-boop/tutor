@@ -8,8 +8,11 @@ indexed into the existing RAG service so it can be retrieved and cited.
 
 from __future__ import annotations
 
+import asyncio
+import hashlib
 import os
 import re
+import threading
 from typing import Any
 
 from app.services.rag.service import get_rag_service
@@ -200,13 +203,43 @@ _VLM_PROMPT = (
     "如果是图表、流程图或示意图，请说明其结构和要点。只输出描述本身，不要解释过程。"
 )
 
+# P0: VLM 图注并发控制 + 哈希缓存。PDF/PPTX 逐图调用 VLM（本地 3B 模型或云端 API）
+# 是上传慢的主因之一：
+#   a) VLM_MAX_CONCURRENCY 限定同一时刻最多推理的图片数（默认 2），
+#      避免几十张图瞬时并发打爆本地模型 / 云端接口；
+#   b) 按图片字节哈希缓存 caption，同一张图（logo、装饰图、重复大图）只推理一次。
+_VLM_MAX_CONCURRENCY = max(1, int(os.getenv("VLM_MAX_CONCURRENCY", "2")))
+_VLM_SEM: asyncio.Semaphore | None = None
+_VLM_SEM_GUARD = threading.Lock()
+_VLM_CAPTION_CACHE: dict[str, str] = {}
+
 
 async def _vlm_caption(image: Any, prompt: str = _VLM_PROMPT) -> str:
-    """Call the VLM to caption one image. Tries local → cloud, returns '' on all failures."""
+    """Call the VLM to caption one image. Tries local → cloud, returns '' on all failures.
+
+    Never blocks ingestion: any VLM failure degrades to '' so the page/slide is
+    still stored from its extracted text. Duplicate images are served from an
+    in-memory hash cache; concurrency is capped by VLM_MAX_CONCURRENCY.
+    """
+    key: str | None = None
+    if isinstance(image, (bytes, bytearray)):
+        key = hashlib.sha256(bytes(image)).hexdigest()
+        cached = _VLM_CAPTION_CACHE.get(key)
+        if cached is not None:
+            return cached
+    global _VLM_SEM
+    if _VLM_SEM is None:
+        with _VLM_SEM_GUARD:
+            if _VLM_SEM is None:
+                _VLM_SEM = asyncio.Semaphore(_VLM_MAX_CONCURRENCY)
     try:
         from app.services.vlm.provider import describe_image_fallback
-        cap = await describe_image_fallback(prompt=prompt, image=image)
-        return (cap or "").strip()
+        async with _VLM_SEM:
+            cap = await describe_image_fallback(prompt=prompt, image=image)
+        cap = (cap or "").strip()
+        if cap and key:
+            _VLM_CAPTION_CACHE[key] = cap
+        return cap
     except Exception:
         return ""
 
@@ -323,7 +356,8 @@ class KnowledgeBaseIngestor:
     async def ingest_transcript(self, *, title: str, text: str,
                                 topics: dict[str, dict] | None = None,
                                 meta: dict | None = None,
-                                path: str = "") -> dict[str, Any]:
+                                path: str = "",
+                                kind: str = "video") -> dict[str, Any]:
         """Video lecture transcript (SRT / [HH:MM:SS] / plain text).
 
         ``meta`` may carry the real video URL / YouTube id so citations can
@@ -331,7 +365,7 @@ class KnowledgeBaseIngestor:
         records the local transcript file for citations to open as an artifact.
         """
         topics = topics if topics is not None else self.store.list_topics_by_id()
-        source = self.store.add_source(title=title, kind="video",
+        source = self.store.add_source(title=title, kind=kind,
                                        path=path, meta=meta or {})
         segments = _split_transcript(text)
         created = []
@@ -601,6 +635,9 @@ class KnowledgeBaseIngestor:
                     if page_text:
                         ocr_pages.append(page_idx + 1)
 
+                # 图注由 VLM 驱动；每页都调用（尤其降级到云端 API 时）会拖到几分钟。
+                # 关闭 VLM（VLM_ENABLED 非 true）时跳过图注，保留纯文本，避免上传卡死。
+                vlm_on = os.getenv("VLM_ENABLED", "false").strip().lower() == "true"
                 fig_caps: list[str] = []
                 for img in page.get_images(full=True):
                     try:
@@ -610,6 +647,8 @@ class KnowledgeBaseIngestor:
                             continue
                         w, h = pix.get("width", 0), pix.get("height", 0)
                         if w < 32 or h < 32:
+                            continue
+                        if not vlm_on:
                             continue
                         cap = await _vlm_caption(data)
                         if cap:

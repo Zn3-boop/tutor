@@ -33,6 +33,10 @@ class DualIndexStore:
         self._vector_ids: list[str] = []
         self._faiss_index: Any = None
         self._embedding_model: Any = None
+        # Lazy-cached BM25Okapi instance; rebuilt only when docs change. Without
+        # this cache every retrieval re-tokenizes the whole corpus (1190+ chunks),
+        # turning a full /evaluate/full run into an O(cases x queries x N) grind.
+        self._bm25_index: Any = None
         self._load_index()
 
     def _load_index(self):
@@ -48,8 +52,14 @@ class DualIndexStore:
                                 doc = {"content": f.read(), "meta": info.get("meta", {}), "chunk_id": cid}
                             self._bm25_docs.append(doc)
                             self._vector_ids.append(cid)
+                self._bm25_index = None  # corpus changed; rebuild lazily on next search
                 logger.info(f"DualIndexStore: loaded {len(self._bm25_docs)} active chunks")
-                if self._bm25_docs and os.getenv("RAG_AUTO_BUILD_FAISS", "true").lower() in ("true", "1", "yes"):
+                # FAISS is built lazily on first vector_search() (cached until the
+                # corpus changes). Building it eagerly here can burn minutes of CPU
+                # on first load (2681+ chunks -> 2681 embeddings) and stalls the
+                # first /evaluate/full request even when the caller only needs BM25.
+                # Opt-in to the old eager behavior with RAG_AUTO_BUILD_FAISS=true.
+                if self._bm25_docs and os.getenv("RAG_AUTO_BUILD_FAISS", "false").lower() in ("true", "1", "yes"):
                     logger.info("DualIndexStore: auto-building FAISS index on startup...")
                     try:
                         self._build_faiss_index()
@@ -118,7 +128,30 @@ class DualIndexStore:
         doc = {"content": content, "meta": meta, "chunk_id": chunk_id}
         self._bm25_docs.append(doc)
         self._vector_ids.append(chunk_id)
+        # P0: FAISS 增量写入。索引若已构建过（此前触发过检索），只把新 chunk 的
+        # embedding 追加进现有索引，不再整库置空 → 上传几百个 chunk 时避免 O(n^2)
+        # 的重复全量重建。增量失败则回退懒重建（下次 vector_search 时整库重建）。
+        if self._faiss_index is not None:
+            try:
+                model = self._get_embedding_model()
+                if model is not None:
+                    import numpy as np
+                    emb = np.array(model.encode([content], show_progress_bar=False), dtype=np.float32)
+                    faiss = __import__("faiss")
+                    faiss.normalize_L2(emb)
+                    self._faiss_index.add(emb)
+                    if getattr(self, "_faiss_embeddings", None) is not None:
+                        self._faiss_embeddings = np.vstack([self._faiss_embeddings, emb])
+                    else:
+                        self._faiss_embeddings = emb
+                    self._bm25_index = None  # corpus changed; BM25 rebuilds lazily on next search
+                    logger.info(f"DualIndexStore: incrementally added chunk {chunk_id} v{version}")
+                    return chunk_id
+            except Exception as exc:
+                logger.warning(f"FAISS 增量写入失败，回退懒重建: {exc}")
+                self._faiss_index = None
         self._faiss_index = None
+        self._bm25_index = None  # corpus changed; rebuild lazily on next search
         logger.info(f"DualIndexStore: added chunk {chunk_id} v{version}")
         return chunk_id
 
@@ -130,7 +163,11 @@ class DualIndexStore:
         # Bulk ingestion (e.g. a 450-unit course seed) would otherwise rebuild the
         # FAISS index O(n) times -> O(n^2) embeddings. vector_search() builds the
         # index lazily on first use, so deferring is safe.
-        defer = os.getenv("RAG_DEFER_FAISS_BUILD", "false").lower() in ("true", "1", "yes")
+        # 批量摄入（一个 PDF/课件可能几百个 chunk）时，若每个 add_chunk 都重建一次
+        # FAISS 索引，embedding 会变成 O(n^2)，几个大文件就能拖到好几分钟。
+        # 默认推迟到首次向量检索时一次性懒构建；显式 RAG_DEFER_FAISS_BUILD=false
+        # 才保持旧行为（每次立即重建）。
+        defer = os.getenv("RAG_DEFER_FAISS_BUILD", "true").lower() in ("true", "1", "yes")
         if not defer:
             self._build_faiss_index()
         return ids
@@ -144,6 +181,7 @@ class DualIndexStore:
         self._bm25_docs = [d for d in self._bm25_docs if d["chunk_id"] != chunk_id]
         self._vector_ids = [vid for vid in self._vector_ids if vid != chunk_id]
         self._faiss_index = None
+        self._bm25_index = None  # corpus changed; rebuild lazily on next search
         logger.info(f"DualIndexStore: deleted (soft) chunk {chunk_id}")
         return True
 
@@ -173,6 +211,7 @@ class DualIndexStore:
                 self._bm25_docs[i] = {"content": content, "meta": meta, "chunk_id": chunk_id}
                 break
         self._faiss_index = None
+        self._bm25_index = None  # corpus changed; rebuild lazily on next search
         logger.info(f"DualIndexStore: updated chunk {chunk_id} v{old_version}→v{new_version}")
         return True
 
@@ -257,8 +296,10 @@ class DualIndexStore:
             return []
         try:
             from rank_bm25 import BM25Okapi
-            tokenized_corpus = [list(d["content"]) for d in self._bm25_docs]
-            bm25 = BM25Okapi(tokenized_corpus)
+            if self._bm25_index is None:
+                tokenized_corpus = [list(d["content"]) for d in self._bm25_docs]
+                self._bm25_index = BM25Okapi(tokenized_corpus)
+            bm25 = self._bm25_index
             tokenized_query = list(query)
             scores = bm25.get_scores(tokenized_query)
             ranked = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)

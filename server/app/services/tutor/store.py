@@ -45,6 +45,7 @@ class TutorStore:
             "questions": {},    # question_id -> question dict
             "assessments": {},  # assessment_id -> assessment dict
             "sessions": {},     # session_id -> session dict
+            "wrong_questions": {},  # wq_id -> wrong question record
         }
         self._load()
 
@@ -152,6 +153,18 @@ class TutorStore:
             units = [u for u in units if u.get("source_id") == source_id]
         return sorted(units, key=lambda u: u.get("created_at", 0))
 
+    def units_by_topics(self, topic_ids: list[str]) -> list[dict]:
+        """Return units (with source title) whose topic_ids intersect the given set."""
+        want = set(topic_ids)
+        out = []
+        for u in self._all("units"):
+            if want & set(u.get("topic_ids", [])):
+                rec = dict(u)
+                src = self.get_source(u.get("source_id", "")) or {}
+                rec["source_title"] = src.get("title", src.get("name", ""))
+                out.append(rec)
+        return sorted(out, key=lambda u: u.get("created_at", 0))
+
     def get_unit_by_chunk(self, chunk_id: str) -> dict | None:
         for uid, unit in self.db["units"].items():
             if unit.get("chunk_id") == chunk_id or (chunk_id or "").startswith(uid):
@@ -185,10 +198,12 @@ class TutorStore:
         return {t["topic_id"]: t for t in self._all("topics")}
 
     # ---------------- students ----------------
-    def create_student(self, *, name: str = "", profile: dict | None = None) -> dict:
+    def create_student(self, *, name: str = "", profile: dict | None = None,
+                       lang: str = "auto") -> dict:
         rec = {
             "name": name,
             "profile": profile or {},
+            "lang": lang if lang in ("auto", "zh", "en") else "auto",  # P1 聊天语言偏好
             "mastery": {},          # topic_id -> BKT state
             "asked_questions": [],  # question_ids already shown (avoid repeats)
             "conversation_history": [],
@@ -256,6 +271,40 @@ class TutorStore:
         rec = {"student_id": student_id, "mode": mode, "payload": payload}
         sid = self._insert("sessions", rec, "session_id")
         return self._get("sessions", sid) or rec
+
+    # ---------------- wrong questions (错题本) ----------------
+    def add_wrong_question(self, *, student_id: str, question_id: str,
+                           question_text: str, chosen: str,
+                           correct_answer: str, topic_ids: list[str],
+                           assessment_id: str = "",
+                           explanation: str = "") -> dict:
+        rec = {
+            "student_id": student_id,
+            "question_id": question_id,
+            "question_text": question_text,
+            "chosen": chosen,
+            "correct_answer": correct_answer,
+            "topic_ids": topic_ids,
+            "assessment_id": assessment_id,
+            "explanation": explanation,
+            "resolved": False,
+        }
+        wid = self._insert("wrong_questions", rec, "wq_id")
+        return self._get("wrong_questions", wid) or rec
+
+    def list_wrong_questions(self, student_id: str,
+                             topic_id: str = "") -> list[dict]:
+        items = self._all("wrong_questions")
+        items = [w for w in items if w.get("student_id") == student_id]
+        if topic_id:
+            items = [w for w in items if topic_id in w.get("topic_ids", [])]
+        return sorted(items, key=lambda w: w.get("created_at", 0), reverse=True)
+
+    def mark_wrong_question_resolved(self, wq_id: str) -> dict | None:
+        return self._update("wrong_questions", wq_id, {"resolved": True})
+
+    def delete_wrong_question(self, wq_id: str) -> bool:
+        return self._delete("wrong_questions", wq_id)
 
 
 _instances: dict[str, TutorStore] = {}

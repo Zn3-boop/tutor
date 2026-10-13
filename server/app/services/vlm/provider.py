@@ -22,15 +22,21 @@ class VLMError(RuntimeError):
 
 class VLMProvider:
     """
-    Local multimodal vision-language model (loaded via transformers; CPU/GPU
-    auto-detected).
+    [DISABLED by default] Local multimodal vision-language model.
 
-    Replaces the vLLM approach so machines without a GPU can load small models
-    in the Qwen2.5-VL-3B-Instruct class. The model loads lazily on first use,
-    and inference is offloaded to a thread pool to avoid blocking the event loop.
+    Set VLM_ENABLED=true to re-enable. Kept for future extension — the
+    transformers-based Qwen2.5-VL loader can be restored when GPU / model
+    resources are available.
+
+    Original doc:
+      Local multimodal vision-language model (loaded via transformers; CPU/GPU
+      auto-detected). Replaces the vLLM approach so machines without a GPU can
+      load small models in the Qwen2.5-VL-3B-Instruct class. The model loads
+      lazily on first use, and inference is offloaded to a thread pool to avoid
+      blocking the event loop.
 
     Environment variables:
-        VLM_ENABLED           enable/disable, default "true"
+        VLM_ENABLED           enable/disable, default "false"
         VLM_MODEL             HF model name, default "Qwen/Qwen2.5-VL-3B-Instruct"
         VLM_DEVICE            "cpu" / "cuda" / "auto", default "cpu"
         VLM_MAX_NEW_TOKENS    max generated tokens, default 256
@@ -39,7 +45,8 @@ class VLMProvider:
     """
 
     def __init__(self) -> None:
-        self.model_name = os.getenv("VLM_MODEL", "Qwen/Qwen2.5-VL-3B-Instruct")
+        self.model_path = os.getenv("VLM_MODEL_PATH", "").strip()
+        self.model_name = self.model_path or os.getenv("VLM_MODEL", "Qwen/Qwen2.5-VL-3B-Instruct")
         self.device = os.getenv("VLM_DEVICE", "cpu")
         self.max_new_tokens = int(os.getenv("VLM_MAX_NEW_TOKENS", "256"))
         self.max_image_side = int(os.getenv("VLM_MAX_IMAGE_SIDE", "640"))
@@ -47,16 +54,44 @@ class VLMProvider:
         self._model = None
         self._processor = None
         self._load_lock = asyncio.Lock()
+        self._is_loading = False
+        self._load_error: str | None = None
 
     @property
     def enabled(self) -> bool:
-        return os.getenv("VLM_ENABLED", "true").strip().lower() == "true"
+        return os.getenv("VLM_ENABLED", "false").strip().lower() == "true"
 
     @property
     def loaded(self) -> bool:
         return self._model is not None
 
+    @property
+    def is_loading(self) -> bool:
+        return self._is_loading
+
+    @property
+    def load_error(self) -> str | None:
+        return self._load_error
+
+    @property
+    def status(self) -> str:
+        if self.loaded:
+            return "loaded"
+        if self._is_loading:
+            return "warming"
+        if self._load_error:
+            return "failed"
+        return "idle"
+
     async def warmup(self) -> None:
+        """Trigger model loading in a background thread (non-blocking).
+
+        Uses asyncio.to_thread so the CPU-heavy _load() does not block
+        the async event loop.  Safe to call multiple times — concurrent
+        calls are deduplicated by _load_lock.
+        """
+        if self.loaded or self._is_loading:
+            return
         await self._ensure_loaded()
 
     async def describe_image(
@@ -76,6 +111,10 @@ class VLMProvider:
         """
         if not self.enabled:
             raise VLMError("VLM is disabled. Set VLM_ENABLED=true.")
+        if self._is_loading:
+            raise VLMError("VLM model is warming up, please retry in a moment.")
+        if self._load_error and not self.loaded:
+            raise VLMError(f"VLM model failed to load: {self._load_error}")
         await self._ensure_loaded()
         return await asyncio.to_thread(
             self._generate, prompt, image, max_new_tokens or self.max_new_tokens
@@ -83,25 +122,57 @@ class VLMProvider:
 
     async def _ensure_loaded(self) -> None:
         async with self._load_lock:
-            if self._model is None:
+            if self._model is not None:
+                return
+            self._is_loading = True
+            self._load_error = None
+            try:
                 await asyncio.to_thread(self._load)
+            except Exception as exc:
+                self._load_error = str(exc)
+                logger.error(f"[VLM] model load failed: {exc}")
+                raise
+            finally:
+                self._is_loading = False
 
     def _load(self) -> None:
         import torch
-        from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
+        from transformers import Qwen2_5_VLForConditionalGeneration
 
-        logger.info(f"[VLM] loading {self.model_name} on {self.device} ...")
+        os.environ.setdefault("HF_HUB_OFFLINE", "1")
+        os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
+        load_from = self.model_name
+        logger.info(f"[VLM] loading {load_from} on {self.device} (offline) ...")
         dtype = "auto" if self.torch_dtype == "auto" else getattr(torch, self.torch_dtype)
 
-        self._processor = AutoProcessor.from_pretrained(self.model_name)
+        self._processor = self._load_processor(load_from)
         self._model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-            self.model_name,
-            torch_dtype=dtype,
+            load_from,
+            dtype=dtype,
             device_map=self.device,
             low_cpu_mem_usage=True,
+            local_files_only=True,
         )
         self._model.eval()
         logger.info("[VLM] model loaded.")
+
+    @staticmethod
+    def _load_processor(model_dir: str):
+        from transformers import Qwen2_5_VLProcessor
+
+        try:
+            return Qwen2_5_VLProcessor.from_pretrained(
+                model_dir, local_files_only=True,
+            )
+        except ValueError as e:
+            if "Unrecognized image processor" not in str(e):
+                raise
+            logger.warning("[VLM] Qwen2_5_VLProcessor failed (old preprocessor_config), building manually...")
+            from transformers import Qwen2VLImageProcessor, Qwen2VLProcessor, AutoTokenizer
+            tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
+            image_processor = Qwen2VLImageProcessor.from_pretrained(model_dir, local_files_only=True)
+            return Qwen2VLProcessor(image_processor=image_processor, tokenizer=tokenizer)
 
     def _to_pil(self, image: Any):
         from PIL import Image

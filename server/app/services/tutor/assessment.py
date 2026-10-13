@@ -14,6 +14,7 @@ Offline-first design:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import random
@@ -24,6 +25,9 @@ from typing import Any
 
 from app.services.tutor.learner import LearnerModel
 from app.services.tutor.store import TutorStore
+from app.services.tutor.error_analyzer import get_error_analyzer
+from app.services.translation.client import translate_text, translation_enabled
+
 
 logger = logging.getLogger(__name__)
 
@@ -236,6 +240,9 @@ class AssessmentGenerator:
             questions=[{"question_id": qid, "topic_ids": q.get("topic_ids", [])}
                        for qid, q in zip(qids, questions)],
         )
+        if translation_enabled() and student.get("lang") == "zh":
+            questions = await self._translate_questions(questions)
+
         return {"ok": True, "assessment_id": assessment["assessment_id"],
                 "questions": questions, "count": len(questions),
                 "difficulty_plan": difficulty_plan}
@@ -243,18 +250,22 @@ class AssessmentGenerator:
 # ---------------- diagnostic quiz (new-student onboarding) ----------------
     @langfuse_observed("tutor.diagnostic", as_type="chain")
     async def generate_diagnostic(self, student: dict, num_questions: int = 6,
-                                  llm: bool = False) -> dict[str, Any]:
-        """Onboarding diagnostic for a (new) student across ALL topics.
+                                  llm: bool = False,
+                                  scope_topic_ids: list[str] | None = None) -> dict[str, Any]:
+        """Onboarding diagnostic for a (new) student, optionally scoped.
 
-        Generates a balanced quiz covering every topic, tags the assessment as
-        ``mode="diagnostic"`` and seeds per-topic BKT defaults so the learner
-        model has initial pL state for the report. As answers are submitted the
-        existing ``submit_answer`` path updates mastery (pL) per topic.
+        Generates a balanced quiz covering every selected topic (default: all),
+        tags the assessment as ``mode="diagnostic"`` and seeds per-topic BKT
+        defaults so the learner model has initial pL state for the report.
+        As answers are submitted the existing ``submit_answer`` path updates
+        mastery (pL) per topic.
         """
         topics = self.store.list_topics_by_id()
         if not topics:
             return {"ok": False, "error": "没有可用的课程主题", "questions": []}
-        scope = list(topics.keys())
+        scope = [t for t in (scope_topic_ids or list(topics.keys())) if t in topics]
+        if not scope:
+            return {"ok": False, "error": "scope 中没有可用的主题", "questions": []}
         # ensure a new student's mastery map exists so report shows pL from the start
         for tid in scope:
             self.learner.get_mastery(student, tid)
@@ -324,6 +335,23 @@ class AssessmentGenerator:
             "source_title": q.get("source_title", ""),
         }
 
+    async def _translate_questions(self, questions: list[dict]) -> list[dict]:
+        """P1.5 轻量按需翻译：把英文题干翻译成中文展示文本。
+
+        - 只改 ``text``（题干）；选项保留英文术语，保证答案按 index 校验不受影响。
+        - 下划线占位符（______）与技术术语由翻译客户端原样保留。
+        - 翻译失败/关闭开关时保持原文，绝不阻断出题。
+        """
+        for q in questions:
+            text = (q.get("text") or "").strip()
+            if not text:
+                continue
+            res = await asyncio.to_thread(translate_text, text)
+            if res.translated:
+                q["text"] = res.text
+                q["translated"] = True
+        return questions
+
     async def _llm_questions(self, scope_topic_ids: list[str],
                              count: int) -> list[dict]:
         from app.services.llm.provider import provider
@@ -347,13 +375,20 @@ class AssessmentGenerator:
         for it in data:
             qid_topics = [t for t in it.get("topic_ids", []) if t in scope_topic_ids] \
                 or scope_topic_ids
-            out.append({
+            q = {
                 "text": it.get("text", ""), "qtype": it.get("type", "short"),
                 "options": [], "answer": it.get("answer", ""),
                 "topic_ids": qid_topics, "source_ids": [],
                 "difficulty": it.get("difficulty", "medium"),
                 "answer_key": "", "explanation": "", "origin": {},
-            })
+            }
+            # Verify LLM-generated question before adding
+            verification = await self.verify_llm_question(q, scope_topic_ids, max_retries=1)
+            if verification.get("verification_passed"):
+                out.append(q)
+                logger.info(f"LLM question verified (confidence={verification.get('confidence_score', 0):.2f}): {q['text'][:50]}...")
+            else:
+                logger.warning(f"LLM question verification failed, skipping: {q['text'][:50]}...")
         return out
 
     def _scope_context(self, topic_ids: list[str]) -> str:
@@ -386,6 +421,109 @@ class AssessmentGenerator:
                 issues.append("missing answer key")
         return {"valid": len(issues) == 0, "issues": issues,
                 "question_id": question_id, "type": q.get("type")}
+
+    async def verify_llm_question(self, question: dict, scope_topic_ids: list[str],
+                                   max_retries: int = 2) -> dict[str, Any]:
+        """Verify an LLM-generated question against course material.
+
+        Uses the LLM to self-check that the answer is verifiable from the
+        course context. If verification fails, retries up to max_retries times.
+
+        Args:
+            question: The generated question dict with text, answer, topic_ids
+            scope_topic_ids: Topic IDs the question should be grounded in
+            max_retries: Maximum number of regeneration attempts
+
+        Returns:
+            dict with verified_question, confidence_score, verification_passed,
+            and retry_count.
+        """
+        from app.services.llm.provider import provider
+        if not provider.enabled:
+            return {
+                "verified_question": question,
+                "confidence_score": 0.5,
+                "verification_passed": True,  # offline fallback: trust the question
+                "retry_count": 0,
+                "method": "offline_fallback",
+            }
+
+        context = self._scope_context(scope_topic_ids)[:4000]
+        prompt = (
+            f"Verify if this question and answer are factually correct "
+            f"based on the course material below.\n\n"
+            f"Question: {question.get('text', '')}\n"
+            f"Answer: {question.get('answer', '')}\n\n"
+            f"Course Material:\n{context}\n\n"
+            f"Respond with JSON: {{\"verified\": true/false, "
+            f"\"confidence\": 0.0-1.0, \"issues\": [\"issue1\", ...]}}"
+        )
+
+        for attempt in range(max_retries + 1):
+            try:
+                resp = (await provider.chat(
+                    system_prompt="You are a strict educational content verifier. "
+                                  "Check that questions and answers are factually "
+                                  "correct and verifiable from the provided material.",
+                    user_prompt=prompt,
+                    temperature=0.1,
+                )).strip()
+
+                # Extract JSON from response
+                import json
+                raw = re.sub(r"^```json\s*", "", resp)
+                raw = re.sub(r"\s*```$", "", raw)
+                result = json.loads(raw)
+
+                verified = result.get("verified", False)
+                confidence = float(result.get("confidence", 0.0))
+                issues = result.get("issues", [])
+
+                if verified and confidence >= 0.7:
+                    return {
+                        "verified_question": question,
+                        "confidence_score": confidence,
+                        "verification_passed": True,
+                        "retry_count": attempt,
+                        "method": "llm_verification",
+                        "issues": issues,
+                    }
+
+                # If failed and we have retries left, try to regenerate
+                if attempt < max_retries:
+                    regen_prompt = (
+                        f"The previous question had issues: {issues}.\n"
+                        f"Please generate a corrected question and answer "
+                        f"based on this course material:\n{context}\n\n"
+                        f"Return JSON: {{\"text\": \"...\", \"answer\": \"...\", "
+                        f"\"type\": \"short\", \"difficulty\": \"medium\"}}"
+                    )
+                    regen_resp = (await provider.chat(
+                        system_prompt="You are a course-exam generator.",
+                        user_prompt=regen_prompt,
+                        temperature=0.3,
+                    )).strip()
+                    raw = re.sub(r"^```json\s*", "", regen_resp)
+                    raw = re.sub(r"\s*```$", "", raw)
+                    new_q = json.loads(raw)
+                    question["text"] = new_q.get("text", question["text"])
+                    question["answer"] = new_q.get("answer", question["answer"])
+                    question["difficulty"] = new_q.get("difficulty", question.get("difficulty", "medium"))
+
+            except Exception as exc:
+                logger.warning(f"LLM question verification failed (attempt {attempt}): {exc}")
+                if attempt == max_retries:
+                    break
+
+        # If all retries exhausted, return the last version with low confidence
+        return {
+            "verified_question": question,
+            "confidence_score": 0.3,
+            "verification_passed": False,
+            "retry_count": max_retries,
+            "method": "llm_verification_failed",
+            "issues": ["Verification failed after maximum retries"],
+        }
 
     # ---------------- answering + learner update ----------------
     @langfuse_observed("tutor.submit", as_type="chain")
@@ -421,6 +559,17 @@ class AssessmentGenerator:
                     "correct_answer": q.get("answer", ""),
                 })
                 del samples[:-12]
+            # auto-record to wrong-question notebook
+            self.store.add_wrong_question(
+                student_id=student["student_id"],
+                question_id=question_id,
+                question_text=q.get("text", ""),
+                chosen=chosen,
+                correct_answer=q.get("answer", ""),
+                topic_ids=q.get("topic_ids", []),
+                assessment_id=assessment_id,
+                explanation=q.get("explanation", ""),
+            )
         student["misconceptions"] = misconceptions
         # snapshot average mastery for the learner-visualization curve (20% weight).
         traj = student.setdefault("mastery_traj", [])
@@ -527,6 +676,18 @@ class AssessmentGenerator:
     def _build_feedback(self, q: dict, correct: bool, chosen: str) -> dict[str, Any]:
         src = self._source_title(q.get("source_ids", [""])[0]) \
             if q.get("source_ids") else ""
+        
+        # 如果不正确，进行错误分析
+        error_analysis = None
+        if not correct:
+            analyzer = get_error_analyzer()
+            error_analysis = analyzer.classify_error(
+                question_text=q.get("text", ""),
+                student_answer=chosen,
+                correct_answer=q.get("answer", ""),
+                explanation=q.get("explanation")
+            )
+        
         return {
             "correct": correct,
             "your_answer": chosen,
@@ -534,6 +695,7 @@ class AssessmentGenerator:
             "explanation": q.get("explanation") or f"依据来源：{src}",
             "citation": {"source_title": src, "origin": q.get("origin", {})},
             "summary": "回答正确 ✔" if correct else "回答错误 ✘，可回看下方来源再复习。",
+            "error_analysis": error_analysis,
         }
 
     # ---------------- post-assessment report ----------------

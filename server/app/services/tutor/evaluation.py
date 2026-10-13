@@ -65,6 +65,8 @@ class EvaluationRunner:
             all_seen: set[str] = set()
             repeats = 0
             total_qs = 0
+            topic_mastery_trajectory: dict[str, list[float]] = {tid: [] for tid in all_topic_ids}
+            difficulty_distribution = {"easy": 0, "medium": 0, "hard": 0}
 
             for _ in range(n_sessions):
                 quiz = await self.generator.generate_quiz(
@@ -84,30 +86,58 @@ class EvaluationRunner:
                         correct += 1
                     await self.generator.submit_answer(
                         student, quiz["assessment_id"], qid,
-                        q["options"][0] if q.get("options") else "ans")
+                        self._answer_choice_for(profile, q, qid))
+                    diff = q.get("difficulty") or "medium"
+                    difficulty_distribution[diff] = difficulty_distribution.get(diff, 0) + 1
+                current_avg = self._avg_mastery(student, all_topic_ids)
                 session_records.append({
                     "session": len(session_records) + 1,
                     "questions": len(quiz["questions"]),
                     "correct": correct,
                     "accuracy": round(correct / max(len(quiz["questions"]), 1), 3),
-                    "avg_mastery": round(self._avg_mastery(student, all_topic_ids), 3),
+                    "avg_mastery": round(current_avg, 3),
                 })
+                for tid in all_topic_ids:
+                    topic_mastery_trajectory[tid].append(
+                        round(self.learner.mastery_level(student, tid), 3)
+                    )
 
             after_mastery = self._avg_mastery(student, all_topic_ids)
             repetition_rate = round(repeats / max(total_qs, 1), 3)
+
+            # Identify weakest and strongest topics for this profile
+            topic_gains = []
+            for tid in all_topic_ids:
+                before_t = topic_mastery_trajectory[tid][0] if topic_mastery_trajectory[tid] else 0
+                after_t = topic_mastery_trajectory[tid][-1] if topic_mastery_trajectory[tid] else 0
+                topic_gains.append({
+                    "topic_id": tid,
+                    "topic_name": topics.get(tid, {}).get("name", tid),
+                    "mastery_before": before_t,
+                    "mastery_after": after_t,
+                    "gain": round(after_t - before_t, 3),
+                    "trajectory": topic_mastery_trajectory[tid],
+                })
+            topic_gains.sort(key=lambda x: x["gain"])
+
             results.append({
                 "student": profile["name"],
                 "mastery_before": round(before_mastery, 3),
                 "mastery_after": round(after_mastery, 3),
                 "mastery_gain": round(after_mastery - before_mastery, 3),
                 "question_repetition_rate": repetition_rate,
+                "asked_questions": total_qs,
+                "difficulty_distribution": difficulty_distribution,
                 "sessions": session_records,
+                "topic_mastery_trajectory": topic_mastery_trajectory,
+                "weakest_topics": topic_gains[:3],
+                "strongest_topics": topic_gains[-3:][::-1],
             })
         return {"ok": True, "profiles": results,
                 "config": {"n_sessions": n_sessions,
                            "questions_per_session": questions_per_session}}
 
-    # ---------------- Day6 full system evaluation ----------------
+    # ---------------- full system evaluation ----------------
     def _answer_choice_for(self, profile: dict, q: dict, qid: str) -> str:
         """Pick the option a simulated student submits for question ``q``.
 
@@ -131,7 +161,7 @@ class EvaluationRunner:
                                   seed: int = 42,
                                   profiles: list[dict] | None = None,
                                   llm: bool = False) -> dict[str, Any]:
-        """One-shot system benchmark reporting all Day6 headline metrics.
+        """One-shot system benchmark reporting the full headline metrics with enhanced test set.
 
         - mastery_gain / question_repetition_rate come from the adaptive
           assessment simulation (multiple sessions, simulated students with
@@ -141,17 +171,30 @@ class EvaluationRunner:
           queries with known gold units + off-material queries that must refuse).
         RAG metrics use RAGAS when installed, else deterministic lexical probes.
         """
-        from app.services.eval.dataset import build_test_cases, summarize_dataset
+        from app.services.eval.dataset import build_comprehensive_test_set, summarize_dataset
         random.seed(seed)
         profiles = profiles or DEFAULT_PROFILES
         topics = self.store.list_topics_by_id()
         all_topic_ids = list(topics.keys())
 
+        # Build comprehensive test set (single source of truth for the
+        # benchmark): build_comprehensive_test_set also persists it to
+        # server/tests/test_set.json via save_test_set, so the exact cases used
+        # for scoring are reproducible and inspectable. Previously the result
+        # was overwritten by a second, smaller build (build_test_cases), which
+        # made the reported summary and the scored cases diverge.
+        comprehensive_result = build_comprehensive_test_set(self.store)
+        cases = comprehensive_result["cases"]
+        test_set_path = comprehensive_result["path"]
+        test_dataset_summary = comprehensive_result["summary"]
+
         # (1) adaptive assessment sessions -> mastery gain + repetition rate
         assessment_results = []
+        sim_students = []
         for profile in profiles:
             student = self.store.create_student(name='sim_' + profile["name"],
                                                 profile=profile)
+            sim_students.append(student)
             before = self._avg_mastery(student, all_topic_ids)
             seen = set()
             repeats = 0
@@ -189,7 +232,6 @@ class EvaluationRunner:
         from app.services.tutor.grounding import get_grounded_tutor
         from app.services.eval import ragas_metrics as rm
         grounded = get_grounded_tutor()
-        cases = build_test_cases(self.store)
         rows = []
         off_total = 0
         off_refused = 0
@@ -214,9 +256,13 @@ class EvaluationRunner:
             })
 
         rag_metrics = rm.aggregate_rag_metrics(rows)
-        ragas_block = rm.try_ragas_evaluate(rows)
-        if ragas_block is not None:
-            rag_metrics = ragas_block
+        # RAGAS LLM-judge scoring is gated on the caller's llm flag: in the
+        # offline path (llm=False) we always use the deterministic lexical
+        # probes, even when a relay key happens to be configured in .env.
+        if llm:
+            ragas_block = rm.try_ragas_evaluate(rows)
+            if ragas_block is not None:
+                rag_metrics = ragas_block
         rag_metrics["refusal_rate"] = round(
             off_refused / off_total if off_total else 0.0, 4)
 
@@ -227,10 +273,21 @@ class EvaluationRunner:
             "question_repetition_rate_avg": round(sum(reps) / len(reps), 4) if reps else 0.0,
         }
 
+        # Compute per-profile mastery trajectory for visualization
+        profile_trajectories = []
+        for p in assessment_results:
+            profile_trajectories.append({
+                "profile": p["profile"],
+                "mastery_before": p["mastery_before"],
+                "mastery_after": p["mastery_after"],
+                "mastery_gain": p["mastery_gain"],
+            })
+
         return {
             "ok": True,
             "ragas_used": rag_metrics.get("ragas_used", False),
             "test_dataset": summarize_dataset(cases),
+            "test_set_path": test_set_path,
             "rag_metrics": rag_metrics,
             "assessment_metrics": assessment_metrics,
             "all_metrics": {
@@ -241,15 +298,54 @@ class EvaluationRunner:
                 "mastery_gain": assessment_metrics["mastery_gain_avg"],
                 "question_repetition_rate": assessment_metrics["question_repetition_rate_avg"],
             },
+            "synthesis_performance": [
+                await self._evaluate_synthesis_queries(cases, st) for st in sim_students
+            ],
             "student_profiles": assessment_results,
+            "profile_trajectories": profile_trajectories,
             "config": {"n_sessions": n_sessions,
                        "questions_per_session": questions_per_session,
+            "test_dataset_summary": test_dataset_summary,
+            "test_set_path": test_set_path,
                        "seed": seed},
         }
 
     def _avg_mastery(self, student: dict, topic_ids: list[str]) -> float:
         vals = [self.learner.mastery_level(student, tid) for tid in topic_ids]
         return sum(vals) / len(vals) if vals else 0.0
+
+    # ---------------- Synthesis query evaluation ----------------
+    async def _evaluate_synthesis_queries(self, cases: list[dict], student: dict) -> dict[str, Any]:
+        """Evaluate multi-source synthesis query performance."""
+        synthesis_cases = [c for c in cases if c.get("query_type") == "synthesis"]
+        if not synthesis_cases:
+            return {"count": 0, "correct": 0, "accuracy": 0.0}
+        
+        correct = 0
+        for case in synthesis_cases:
+            result = await self.generator.generate_quiz(
+                student, case.get("topic_ids", []), num_questions=1, llm=False
+            )
+            if result.get("ok"):
+                correct += 1
+        
+        return {
+            "count": len(synthesis_cases),
+            "correct": correct,
+            "accuracy": correct / len(synthesis_cases) if synthesis_cases else 0.0,
+        }
+
+    # ---------------- Bilingual query evaluation ----------------
+    def _evaluate_bilingual_queries(self, cases: list[dict]) -> dict[str, Any]:
+        """Evaluate bilingual query performance."""
+        en_cases = [c for c in cases if c.get("language") == "en" and c.get("category") == "on-material"]
+        zh_cases = [c for c in cases if c.get("language") == "zh" and c.get("category") == "on-material"]
+        
+        return {
+            "english_queries": len(en_cases),
+            "chinese_queries": len(zh_cases),
+            "total_bilingual": len(en_cases) + len(zh_cases),
+        }
 
     # ---------------- RAG metrics reuse ----------------
     async def evaluate_rag_metrics(self, cases: list[Any] | None = None) -> dict[str, Any]:
