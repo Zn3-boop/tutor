@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api, ReportResponse, SimulateResponse, FullEvalResponse } from '../utils/api';
+import { Button, Card } from './ui';
 
 interface Props { studentId: string; assessmentId: string; }
 
@@ -14,11 +15,11 @@ function Sparkline({ points, width = 190, height = 40 }: { points: number[]; wid
   const pts = vals.map((p, i) => `${(i * step).toFixed(1)},${(height - ((p - min) / range) * height).toFixed(1)}`).join(' ');
   return (
     <svg width={width} height={height} className="spark">
-      <polyline fill="none" stroke="#38bdf8" strokeWidth={2} points={pts} />
+      <polyline fill="none" stroke="#10B981" strokeWidth={2} points={pts} />
       <circle
         cx={width}
         cy={height - ((vals[vals.length - 1] - min) / range) * height}
-        r={2.6} fill="#f472b6"
+        r={2.6} fill="#34D399"
       />
     </svg>
   );
@@ -54,7 +55,16 @@ export default function ReportPanel({ studentId, assessmentId }: Props) {
 
   const runFull = async () => {
     setBusy(true); setErr(''); setFull(null);
-    try { setFull(await api.fullEval(4, 5, 42, false)); } catch (e) { setErr(String(e)); }
+    try {
+      const { task_id } = await api.fullEval(4, 5, 42, false);
+      // 轮询任务状态直至完成
+      for (let i = 0; i < 60; i++) {
+        await new Promise((r) => setTimeout(r, 2000));
+        const st = await api.evalStatus(task_id);
+        if (st.status === 'done') { if (st.result) setFull(st.result); break; }
+        if (st.status === 'error' || st.error) throw new Error(st.error || '评估失败');
+      }
+    } catch (e) { setErr(String(e)); }
     finally { setBusy(false); }
   };
 
@@ -89,20 +99,19 @@ export default function ReportPanel({ studentId, assessmentId }: Props) {
   };
 
   return (
-    <div className="panel">
-      <h2>测评报告</h2>
+    <Card title="测评报告">
       <audio id="tts-audio" style={{ display: 'none' }} />
       <div className="row">
-        <button disabled={busy || !studentId || !assessmentId} onClick={loadReport}>加载报告 (assessment: {assessmentId || '—'})</button>
-        <button disabled={busy || !report} onClick={diagnoseMisconceptions}>🧠 误解诊断 (LLM)</button>
-        <button disabled={busy || !report || speaking} onClick={speakSummary}>{speaking ? '朗读中…' : '🔊 朗读总结'}</button>
-        <button disabled={busy} onClick={runSim}>模拟学生评估</button>
-        <button disabled={busy} onClick={runFull}>Day6 全流水线评估</button>
+        <Button size="sm" variant="secondary" disabled={busy || !studentId || !assessmentId} onClick={loadReport}>加载报告 (assessment: {assessmentId || '—'})</Button>
+        <Button size="sm" variant="secondary" disabled={busy || !report} onClick={diagnoseMisconceptions}>🧠 误解诊断 (LLM)</Button>
+        <Button size="sm" variant="secondary" disabled={busy || !report || speaking} onClick={speakSummary}>{speaking ? '朗读中…' : '🔊 朗读总结'}</Button>
+        <Button size="sm" variant="secondary" disabled={busy} onClick={runSim}>模拟学生评估</Button>
+        <Button size="sm" variant="secondary" disabled={busy} onClick={runFull}>Day6 全流水线评估</Button>
       </div>
       {err && <div className="error">{err}</div>}
 
       {report && (
-        <div className="card">
+        <Card title="学习报告">
           <div className="meta">Assessment: {report.assessment_id}</div>
           <div>总体掌握度: <b>{report.overall_mastery?.toFixed(3)}</b></div>
           {traj.length >= 2 && (
@@ -130,12 +139,11 @@ export default function ReportPanel({ studentId, assessmentId }: Props) {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
 
       {sim && (
-        <div className="card">
-          <h4>模拟学生评估</h4>
+        <Card title="模拟学生评估">
           <table>
             <thead><tr><th>学生</th><th>before</th><th>after</th><th>gain</th><th>重复率</th><th>掌握度曲线</th></tr></thead>
             <tbody>
@@ -148,12 +156,11 @@ export default function ReportPanel({ studentId, assessmentId }: Props) {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
 
       {full && (
-        <div className="card">
-          <h4>Day6 全流水线评估 {full.ragas_used ? '(RAGAS 真 LLM 评估)' : '(离线探针)'}</h4>
+        <Card title={`Day6 全流水线评估 ${full.ragas_used ? '(RAGAS 真 LLM 评估)' : '(离线探针)'}`}>
           <div className="meta">
             测试集: {full.test_dataset.total} 例 = 课程内 {full.test_dataset.on_material}
             + 超纲 {full.test_dataset.off_material}
@@ -184,8 +191,8 @@ export default function ReportPanel({ studentId, assessmentId }: Props) {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
-    </div>
+    </Card>
   );
 }

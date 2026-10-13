@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, CourseGraph, GraphNode, FlashcardsResponse, StudyPlanResponse } from '../utils/api';
+import { Button, Card, Input } from './ui';
 
-interface Props { studentId: string; }
+interface Props { studentId: string; onOpenGraph?: () => void; }
 
-export default function StudyPlanPanel({ studentId }: Props) {
+export default function StudyPlanPanel({ studentId, onOpenGraph }: Props) {
   const [graph, setGraph] = useState<CourseGraph | null>(null);
   const [cards, setCards] = useState<FlashcardsResponse | null>(null);
   const [plan, setPlan] = useState<StudyPlanResponse | null>(null);
@@ -38,24 +39,21 @@ export default function StudyPlanPanel({ studentId }: Props) {
   };
 
   return (
-    <div className="panel">
-      <h2>学习计划 · 课程图 · 复习卡片</h2>
+    <Card title="学习计划 · 课程图 · 复习卡片">
       {err && <div className="error">{err}</div>}
 
       {/* 6a. course graph */}
-      <div className="card">
-        <h3>课程流程图 (topics → prerequisites)</h3>
+      <Card title="课程流程图 (topics → prerequisites)">
         {graph && <CourseGraphSvg graph={graph} />}
         <div className="row">
-          <button disabled={busy} onClick={loadGraph}>刷新课程图</button>
+          <Button size="sm" variant="secondary" disabled={busy} onClick={loadGraph}>🔄 刷新课程图</Button>
         </div>
-      </div>
+      </Card>
 
       {/* 6b. flashcards */}
-      <div className="card">
-        <h3>薄弱项复习卡片</h3>
+      <Card title="薄弱项复习卡片">
         <div className="row">
-          <button disabled={busy || !studentId} onClick={genCards}>生成复习卡片</button>
+          <Button size="sm" disabled={busy || !studentId} onClick={genCards}>🎴 生成复习卡片</Button>
         </div>
         {cards && cards.ok && cards.cards.length > 0 && (
           <div className="flashgrid">
@@ -71,15 +69,21 @@ export default function StudyPlanPanel({ studentId }: Props) {
           </div>
         )}
         {cards && cards.ok && cards.cards.length === 0 && <div className="meta">暂无可用卡片（请先摄入资料 / 上传课程）。</div>}
-      </div>
+      </Card>
 
       {/* 6c. study plan */}
-      <div className="card">
-        <h3>个性化学习计划</h3>
+      <Card title="个性化学习计划">
         <div className="row">
-          <label>距考试 <input type="number" min={1} max={90} value={examDays} onChange={(e) => setExamDays(Number(e.target.value))} /> 天</label>
-          <label>每周 <input type="number" min={1} max={35} value={perWeek} onChange={(e) => setPerWeek(Number(e.target.value))} /> 次练习</label>
-          <button disabled={busy || !studentId} onClick={genPlan}>生成计划</button>
+          <label className="flex items-center gap-1.5 text-sm text-slate-600">距考试
+            <Input type="number" min={1} max={90} value={examDays} onChange={(e) => setExamDays(Number(e.target.value))} className="w-24" /> 天
+          </label>
+          <label className="flex items-center gap-1.5 text-sm text-slate-600">每周
+            <Input type="number" min={1} max={35} value={perWeek} onChange={(e) => setPerWeek(Number(e.target.value))} className="w-24" /> 次练习
+          </label>
+          <Button size="sm" disabled={busy || !studentId} onClick={genPlan}>🎯 生成计划</Button>
+          {onOpenGraph && (
+            <Button size="sm" variant="secondary" onClick={() => onOpenGraph()}>🗺 打开交互图谱</Button>
+          )}
         </div>
         {plan && plan.ok && (
           <>
@@ -88,24 +92,30 @@ export default function StudyPlanPanel({ studentId }: Props) {
             </div>
             <div className="planlist">
               {plan.days.map((d) => (
-                <div key={d.day} className="planrow">
+                <div key={d.day} className="planrow" style={{ alignItems: 'flex-start' }}>
                   <span className="day">Day {d.day}</span>
-                  <span className="acts">
+                  <div className="acts" style={{ flexDirection: 'column', gap: '6px' }}>
                     {d.activities.map((a, i) => (
-                      <span key={i} className={'act ' + (a.action === '复习' ? 'review' : 'learn')}>
-                        {a.topic_name}<em>{a.action}</em>
-                        <small>{a.reason}</small>
-                      </span>
+                      <div key={i} className={'act ' + (a.action === '复习' ? 'review' : a.action === '学习' ? 'learn' : 'goal')} style={{ padding: '8px 12px', fontSize: 13, lineHeight: 1.5 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                          {a.topic_name} · <em>{a.action}</em>
+                        </div>
+                        {a.learning_goal && <div className="meta" style={{ color: '#047857', marginBottom: 2 }}>🎯 学习目标: {a.learning_goal}</div>}
+                        {a.materials && <div className="meta" style={{ marginBottom: 2 }}>📚 教材材料: {a.materials}</div>}
+                        {a.exercise && <div className="meta" style={{ marginBottom: 2 }}>✏️ 练习任务: {a.exercise}</div>}
+                        {a.review_requirement && <div className="meta" style={{ marginBottom: 2 }}>🔄 复习要求: {a.review_requirement}</div>}
+                        <div className="meta" style={{ marginTop: 4, fontStyle: 'italic' }}>{a.reason}</div>
+                      </div>
                     ))}
-</span>
-                  <span className="meta">~{d.minutes}min</span>
+                  </div>
+                  <span className="meta" style={{ flexShrink: 0, marginTop: 4 }}>~{d.minutes}min</span>
                 </div>
               ))}
             </div>
           </>
         )}
-      </div>
-    </div>
+        </Card>
+    </Card>
   );
 }
 const W = 760, H = 300;
@@ -141,24 +151,24 @@ function CourseGraphSvg({ graph }: { graph: CourseGraph }) {
   }, [graph]);
 
   const color = (m?: number | null) => {
-    if (m == null) return '#8a93a6';
-    if (m < 0.4) return '#e4584f';
-    if (m < 0.7) return '#e0a53e';
-    return '#3fb27f';
+    if (m == null) return '#94A3B8';
+    if (m < 0.4) return '#F87171';
+    if (m < 0.7) return '#FB923C';
+    return '#10B981';
   };
 
   return (
     <svg width={W} height={layout.height} style={{ maxWidth: '100%' }}>
       <defs>
         <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
-          <path d="M0,0 L8,4 L0,8 Z" fill="#b9c2d0" />
+          <path d="M0,0 L8,4 L0,8 Z" fill="#CBD5E1" />
         </marker>
       </defs>
       {graph.edges.map((e, i) =>
         layout.pos[e.from] && layout.pos[e.to] ? (
           <line key={i} x1={layout.pos[e.from].x} y1={layout.pos[e.from].y}
             x2={layout.pos[e.to].x} y2={layout.pos[e.to].y}
-            stroke="#b9c2d0" strokeWidth={1.6} markerEnd="url(#arrow)" />
+            stroke="#CBD5E1" strokeWidth={1.6} markerEnd="url(#arrow)" />
         ) : null
       )}
       {graph.nodes.map((n) => {
@@ -179,7 +189,7 @@ function CourseGraphSvg({ graph }: { graph: CourseGraph }) {
       {graph.nodes.map((n) => {
         const p = layout.pos[n.id]; if (!p) return null;
         return (
-          <text key={'t' + n.id} x={p.x} y={p.y + 36} textAnchor="middle" fontSize={12} fill="#2b3440" fontWeight={500}>
+          <text key={'t' + n.id} x={p.x} y={p.y + 36} textAnchor="middle" fontSize={12} fill="#334155" fontWeight={500}>
             {n.name}
           </text>
         );
