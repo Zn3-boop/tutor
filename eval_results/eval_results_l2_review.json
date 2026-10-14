@@ -50,7 +50,7 @@
           "rrf_score": 0.01639344262295082,
           "merged_source": "rrf",
           "rerank_score": 0.30106058716773987,
-          "weighted_score": 0.017518363556252078
+          "weighted_score": 0.017508667760739057
         },
         {
           "content": "A variable is a name that refers to a value stored in memory.",
@@ -83,7 +83,7 @@
           "rrf_score": 0.016129032258064516,
           "merged_source": "rrf",
           "rerank_score": 0.30106058716773987,
-          "weighted_score": 0.017227854750709374
+          "weighted_score": 0.017218324139658795
         },
         {
           "content": "A variable is a name that refers to a value stored in memory.",
@@ -116,7 +116,7 @@
           "rrf_score": 0.015873015873015872,
           "merged_source": "rrf",
           "rerank_score": 0.30106058716773987,
-          "weighted_score": 0.016935880721901678
+          "weighted_score": 0.016926521860019483
         }
       ],
       "detected_language": "en"
@@ -171,7 +171,7 @@
           "rrf_score": 0.015873015873015872,
           "merged_source": "rrf",
           "rerank_score": 0.1814098209142685,
-          "weighted_score": 0.016935867174989076
+          "weighted_score": 0.01692650881325753
         },
         {
           "content": "Functions are defined using the def keyword in Python.",
@@ -204,7 +204,7 @@
           "rrf_score": 0.01639344262295082,
           "merged_source": "rrf",
           "rerank_score": 0.1814097911119461,
-          "weighted_score": 0.017518349472847028
+          "weighted_score": 0.017508654195568518
         },
         {
           "content": "Functions are defined using the def keyword in Python.",
@@ -237,7 +237,7 @@
           "rrf_score": 0.016129032258064516,
           "merged_source": "rrf",
           "rerank_score": 0.1814097911119461,
-          "weighted_score": 0.01722784145828782
+          "weighted_score": 0.01721831135602631
         }
       ],
       "detected_language": "en"
@@ -298,7 +298,7 @@
           "rrf_score": 0.01639344262295082,
           "merged_source": "rrf",
           "rerank_score": 0.05550649017095566,
-          "weighted_score": 0.017518333679079755
+          "weighted_score": 0.017508637356268737
         },
         {
           "content": "The return statement sends a value back to the caller of the function.",
@@ -331,7 +331,7 @@
           "rrf_score": 0.016129032258064516,
           "merged_source": "rrf",
           "rerank_score": 0.05550649017095566,
-          "weighted_score": 0.01722782596467373
+          "weighted_score": 0.01721829483464951
         },
         {
           "content": "Chapter 3\nFunctions\nIn the context of programming, a function is a named sequence of statements that performs\na computation. When you deﬁne a function, you specify the name and the sequence of\nstatements. Later, you can “call” the function by name.\n3.1\nFunction calls\nWe have already seen one example of a function call:\n>>> type(42)\n<class 'int'>\nThe name of the function is type. The expression in parentheses is called the argument of\nthe function. The result, for this function, is the type of the argument.\nIt is common to say that a function “takes” an argument and “returns” a result.",
@@ -364,7 +364,7 @@
           "rrf_score": 0.027031963470319637,
           "merged_source": "rrf",
           "rerank_score": 0.0004029613046441227,
-          "weighted_score": 0.02883966214001465
+          "weighted_score": 0.02882372557277622
         }
       ],
       "detected_language": "en"
@@ -692,90 +692,210 @@
       {
         "step": 75,
         "mastery": 0.999
+      },
+      {
+        "step": 76,
+        "mastery": 0.999
+      },
+      {
+        "step": 77,
+        "mastery": 0.999
+      },
+      {
+        "step": 78,
+        "mastery": 0.995
+      },
+      {
+        "step": 79,
+        "mastery": 0.999
+      },
+      {
+        "step": 80,
+        "mastery": 0.999
+      },
+      {
+        "step": 81,
+        "mastery": 0.994
+      },
+      {
+        "step": 82,
+        "mastery": 0.997
+      },
+      {
+        "step": 83,
+        "mastery": 0.998
+      },
+      {
+        "step": 84,
+        "mastery": 0.997
+      },
+      {
+        "step": 85,
+        "mastery": 0.997
+      },
+      {
+        "step": 86,
+        "mastery": 0.998
+      },
+      {
+        "step": 87,
+        "mastery": 0.998
+      },
+      {
+        "step": 88,
+        "mastery": 0.99
+      },
+      {
+        "step": 89,
+        "mastery": 0.992
+      },
+      {
+        "step": 90,
+        "mastery": 0.998
+      },
+      {
+        "step": 91,
+        "mastery": 0.999
+      },
+      {
+        "step": 92,
+        "mastery": 0.999
+      },
+      {
+        "step": 93,
+        "mastery": 0.996
+      },
+      {
+        "step": 94,
+        "mastery": 0.998
+      },
+      {
+        "step": 95,
+        "mastery": 0.999
+      },
+      {
+        "step": 96,
+        "mastery": 0.998
+      },
+      {
+        "step": 97,
+        "mastery": 0.999
+      },
+      {
+        "step": 98,
+        "mastery": 0.999
+      },
+      {
+        "step": 99,
+        "mastery": 0.995
+      },
+      {
+        "step": 100,
+        "mastery": 0.999
+      },
+      {
+        "step": 101,
+        "mastery": 0.999
+      },
+      {
+        "step": 102,
+        "mastery": 0.999
+      },
+      {
+        "step": 103,
+        "mastery": 0.998
+      },
+      {
+        "step": 104,
+        "mastery": 0.999
+      },
+      {
+        "step": 105,
+        "mastery": 0.999
       }
     ],
     "misconceptions": {
-      "t_datatypes": {
-        "label": "混淆了函数定义def与调用",
-        "error_count": 11
-      },
-      "t_strings": {
-        "label": "信息的描述",
-        "error_count": 7
-      },
-      "t_control": {
-        "label": "信息的描述",
-        "error_count": 11
-      },
-      "t_recursion": {
-        "label": "信息的来源",
-        "error_count": 3
-      },
       "t_variable": {
-        "label": "混淆了变量类型",
-        "error_count": 10
+        "label": "混淆了变量定义和函数定义",
+        "error_count": 9
       },
-      "t_functions": {
-        "label": "函数定义与函数调用",
-        "error_count": 10
-      },
-      "t_dicts": {
-        "label": "信息的描述",
+      "t_datatypes": {
+        "label": "忘记了不同数据类型的区分",
         "error_count": 8
       },
+      "t_strings": {
+        "label": "混淆了字符串的索引",
+        "error_count": 6
+      },
+      "t_control": {
+        "label": "混淆了条件分支的顺序",
+        "error_count": 9
+      },
+      "t_functions": {
+        "label": "混淆了函数定义和函数调用",
+        "error_count": 6
+      },
       "t_lists": {
-        "label": "append返回值为None",
-        "error_count": 7
+        "label": "忘记了列表的索引",
+        "error_count": 6
+      },
+      "t_dicts": {
+        "label": "混淆了字典的key-value对",
+        "error_count": 6
+      },
+      "t_recursion": {
+        "label": "忘记了函数的递归定义",
+        "error_count": 3
       }
     },
     "mastery_summary": {
       "t_variable": {
         "name": "Variables",
         "mastery": 0.999,
-        "n_correct": 31,
-        "n_wrong": 15
+        "n_correct": 42,
+        "n_wrong": 20
       },
       "t_datatypes": {
         "name": "Data Types",
         "mastery": 0.999,
-        "n_correct": 40,
-        "n_wrong": 16
+        "n_correct": 56,
+        "n_wrong": 20
       },
       "t_strings": {
         "name": "Strings",
         "mastery": 0.999,
-        "n_correct": 25,
-        "n_wrong": 11
+        "n_correct": 36,
+        "n_wrong": 14
       },
       "t_control": {
         "name": "Control Flow",
         "mastery": 0.999,
-        "n_correct": 44,
-        "n_wrong": 17
+        "n_correct": 63,
+        "n_wrong": 23
       },
       "t_functions": {
         "name": "Functions",
         "mastery": 0.999,
-        "n_correct": 33,
-        "n_wrong": 15
+        "n_correct": 49,
+        "n_wrong": 18
       },
       "t_lists": {
         "name": "Lists",
         "mastery": 0.999,
-        "n_correct": 26,
-        "n_wrong": 10
+        "n_correct": 40,
+        "n_wrong": 13
       },
       "t_dicts": {
         "name": "Dictionaries",
         "mastery": 0.999,
-        "n_correct": 27,
-        "n_wrong": 14
+        "n_correct": 41,
+        "n_wrong": 17
       },
       "t_recursion": {
         "name": "Recursion",
         "mastery": 0.999,
-        "n_correct": 12,
-        "n_wrong": 7
+        "n_correct": 18,
+        "n_wrong": 10
       }
     }
   },
@@ -846,7 +966,7 @@
       }
     },
     "assessment_metrics": {
-      "mastery_gain_avg": 0.1757,
+      "mastery_gain_avg": 0.1788,
       "question_repetition_rate_avg": 0.0
     },
     "all_metrics": {
@@ -854,7 +974,7 @@
       "context_precision": 0.0,
       "context_recall": 0.0,
       "refusal_rate": 0.9388,
-      "mastery_gain": 0.1757,
+      "mastery_gain": 0.1788,
       "question_repetition_rate": 0.0
     },
     "synthesis_performance": [
@@ -883,8 +1003,8 @@
       {
         "profile": "fast",
         "mastery_before": 0.25,
-        "mastery_after": 0.832,
-        "mastery_gain": 0.582,
+        "mastery_after": 0.571,
+        "mastery_gain": 0.321,
         "question_repetition_rate": 0.0,
         "asked_questions": 2,
         "difficulty_distribution": {
@@ -896,8 +1016,8 @@
       {
         "profile": "average",
         "mastery_before": 0.25,
-        "mastery_after": 0.277,
-        "mastery_gain": 0.027,
+        "mastery_after": 0.774,
+        "mastery_gain": 0.524,
         "question_repetition_rate": 0.0,
         "asked_questions": 2,
         "difficulty_distribution": {
@@ -909,8 +1029,8 @@
       {
         "profile": "struggling",
         "mastery_before": 0.25,
-        "mastery_after": 0.363,
-        "mastery_gain": 0.113,
+        "mastery_after": 0.18,
+        "mastery_gain": -0.07,
         "question_repetition_rate": 0.0,
         "asked_questions": 2,
         "difficulty_distribution": {
@@ -922,8 +1042,8 @@
       {
         "profile": "functions_weak",
         "mastery_before": 0.25,
-        "mastery_after": 0.231,
-        "mastery_gain": -0.019,
+        "mastery_after": 0.19,
+        "mastery_gain": -0.06,
         "question_repetition_rate": 0.0,
         "asked_questions": 2,
         "difficulty_distribution": {
@@ -937,26 +1057,26 @@
       {
         "profile": "fast",
         "mastery_before": 0.25,
-        "mastery_after": 0.832,
-        "mastery_gain": 0.582
+        "mastery_after": 0.571,
+        "mastery_gain": 0.321
       },
       {
         "profile": "average",
         "mastery_before": 0.25,
-        "mastery_after": 0.277,
-        "mastery_gain": 0.027
+        "mastery_after": 0.774,
+        "mastery_gain": 0.524
       },
       {
         "profile": "struggling",
         "mastery_before": 0.25,
-        "mastery_after": 0.363,
-        "mastery_gain": 0.113
+        "mastery_after": 0.18,
+        "mastery_gain": -0.07
       },
       {
         "profile": "functions_weak",
         "mastery_before": 0.25,
-        "mastery_after": 0.231,
-        "mastery_gain": -0.019
+        "mastery_after": 0.19,
+        "mastery_gain": -0.06
       }
     ],
     "config": {
@@ -1030,7 +1150,7 @@
           "bilingual_factual": 10,
           "off-material": 98
         },
-        "generated_at": "2026-10-14T19:51:44.156759"
+        "generated_at": "2026-10-14T20:17:02.389284"
       },
       "test_set_path": "D:\\ecv-tutor\\server\\tests\\test_set.json",
       "seed": 42

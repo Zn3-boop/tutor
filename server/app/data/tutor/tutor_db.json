@@ -30342,13 +30342,14 @@
       },
       "asked_questions": [
         "question_c5814b54f4f4",
+        "question_a3b4614405da",
         "question_70f2688171b6"
       ],
       "conversation_history": [],
       "misconceptions": {},
       "created_at": 1791980222.3979964,
       "student_id": "student_712f585d2271",
-      "updated_at": 1791980222.510773,
+      "updated_at": 1791980961.8584757,
       "mastery_traj": [
         {
           "step": 1,
@@ -30443,6 +30444,7 @@
         }
       },
       "asked_questions": [
+        "question_a3fd092e1cb9",
         "question_928c001376fb",
         "question_d40b7f1068ed"
       ],
@@ -30450,7 +30452,7 @@
       "misconceptions": {},
       "created_at": 1791980222.8260179,
       "student_id": "student_53246050e8f4",
-      "updated_at": 1791980222.8936129,
+      "updated_at": 1791980961.9900758,
       "mastery_traj": [
         {
           "step": 1,
@@ -30546,6 +30548,7 @@
       },
       "asked_questions": [
         "question_72fa0e10db26",
+        "question_c5814b54f4f4",
         "question_59a3a7cdae71"
       ],
       "conversation_history": [],
@@ -30561,7 +30564,7 @@
       },
       "created_at": 1791980223.1851583,
       "student_id": "student_459f15b7c980",
-      "updated_at": 1791980223.249025,
+      "updated_at": 1791980962.1100404,
       "misconception_samples": [
         {
           "question_id": "question_72fa0e10db26",
@@ -30692,6 +30695,7 @@
       },
       "asked_questions": [
         "question_fbcecc2cff7d",
+        "question_c5814b54f4f4",
         "question_6ce9958d5d86"
       ],
       "conversation_history": [],
@@ -30706,7 +30710,7 @@
       },
       "created_at": 1791980223.5689602,
       "student_id": "student_d1fec2b51064",
-      "updated_at": 1791980223.6272635,
+      "updated_at": 1791980962.2440367,
       "misconception_samples": [
         {
           "question_id": "question_6ce9958d5d86",
@@ -37127,6 +37131,98 @@
       "meta": {},
       "assessment_id": "assessment_d5cb666b67d4",
       "created_at": 1791980223.6816163
+    },
+    "assessment_1cc3dbee7809": {
+      "student_id": "student_712f585d2271",
+      "scope_topic_ids": [
+        "t_variable",
+        "t_functions",
+        "t_control"
+      ],
+      "questions": [
+        {
+          "question_id": "question_a3b4614405da",
+          "topic_ids": [
+            "t_control"
+          ]
+        }
+      ],
+      "report": {},
+      "meta": {},
+      "assessment_id": "assessment_1cc3dbee7809",
+      "created_at": 1791980961.9241612
+    },
+    "assessment_e78b4c369db4": {
+      "student_id": "student_53246050e8f4",
+      "scope_topic_ids": [
+        "t_variable",
+        "t_functions",
+        "t_control"
+      ],
+      "questions": [
+        {
+          "question_id": "question_a3fd092e1cb9",
+          "topic_ids": [
+            "t_variable",
+            "t_control",
+            "t_functions",
+            "t_dicts",
+            "t_recursion"
+          ]
+        }
+      ],
+      "report": {},
+      "meta": {},
+      "assessment_id": "assessment_e78b4c369db4",
+      "created_at": 1791980962.049639
+    },
+    "assessment_1c7696972f93": {
+      "student_id": "student_459f15b7c980",
+      "scope_topic_ids": [
+        "t_variable",
+        "t_functions",
+        "t_control"
+      ],
+      "questions": [
+        {
+          "question_id": "question_c5814b54f4f4",
+          "topic_ids": [
+            "t_variable",
+            "t_datatypes",
+            "t_control",
+            "t_functions",
+            "t_dicts"
+          ]
+        }
+      ],
+      "report": {},
+      "meta": {},
+      "assessment_id": "assessment_1c7696972f93",
+      "created_at": 1791980962.1758554
+    },
+    "assessment_2f71b761d9c7": {
+      "student_id": "student_d1fec2b51064",
+      "scope_topic_ids": [
+        "t_variable",
+        "t_functions",
+        "t_control"
+      ],
+      "questions": [
+        {
+          "question_id": "question_c5814b54f4f4",
+          "topic_ids": [
+            "t_variable",
+            "t_datatypes",
+            "t_control",
+            "t_functions",
+            "t_dicts"
+          ]
+        }
+      ],
+      "report": {},
+      "meta": {},
+      "assessment_id": "assessment_2f71b761d9c7",
+      "created_at": 1791980962.2947295
     }
   },
   "sessions": {},
