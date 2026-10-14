@@ -228,13 +228,27 @@ class EvaluationRunner:
                 "difficulty_distribution": difficulty_seen,
             })
 
-        # (2) RAG chat sub-simulation -> faithfulness / context precision+recall
+        # (2) RAG chat sub-simulation -> retrieval metrics (recall@k / MRR /
+        #     NDCG) + generation metrics (faithfulness / relevance)
+        #
+        # TRACe/RAGBench-style split: retrieval and generation are reported
+        # separately so a review can see WHICH stage is weak. Retrieval metrics
+        # average only over cases with resolved gold units; the 0.40 lexical
+        # relevance gate can refuse an on-material question (evidence retrieved
+        # but keyword overlap too low) — those are counted separately as
+        # ``on_material_refused_by_gate`` so the "54% of in-scope refused"
+        # phenomenon is visible as a retrieval/gate number, not hidden.
         from app.services.tutor.grounding import get_grounded_tutor
         from app.services.eval import ragas_metrics as rm
+        from app.services.eval.dataset import build_retrieval_selfcheck_set
         grounded = get_grounded_tutor()
-        rows = []
+        rag_rows: list[dict[str, Any]] = []
         off_total = 0
         off_refused = 0
+        on_total = 0
+        on_answered = 0
+        on_refused_by_gate = 0
+        on_refused_no_evidence = 0
         for case in cases:
             res = await grounded.answer(case["query"], llm=llm)
             if case.get("category") == "off-material":
@@ -242,29 +256,82 @@ class EvaluationRunner:
                 if res.get("status") == "refused":
                     off_refused += 1
                 continue
+
+            on_total += 1
             retrieved = res.get("evidence") or []
-            retrieved_ids = [
-                ((r.get("meta") or {}).get("doc_id") or r.get("chunk_id", ""))
-                for r in retrieved]
+            retrieved_ids = rm._retrieved_doc_ids(retrieved)
             contexts = [r.get("content") or r.get("text") or "" for r in retrieved]
-            rows.append({
+            gold_ids = case.get("expected_doc_ids", []) or []
+            row = {
                 "question": case["query"],
                 "answer": res.get("answer") or "",
                 "contexts": contexts,
                 "retrieved_ids": retrieved_ids,
-                "gold_ids": case.get("expected_doc_ids", []),
-            })
+                "gold_ids": gold_ids,
+            }
+            if res.get("status") == "refused":
+                is_gate = bool(retrieved) and not (res.get("answer") or "")
+                if is_gate:
+                    on_refused_by_gate += 1
+                else:
+                    on_refused_no_evidence += 1
+                # A refused on-material case still contributes a retrieval row
+                # (we DID run retrieval) but has no generation signal.
+                rag_rows.append(row)
+                continue
+            on_answered += 1
+            rag_rows.append(row)
 
-        rag_metrics = rm.aggregate_rag_metrics(rows)
+        # --- Generation metrics: only over answered on-material rows ---
+        generation_rows = [r for r in rag_rows if r.get("answer")]
+        rag_metrics = rm.aggregate_rag_metrics(generation_rows)
         # RAGAS LLM-judge scoring is gated on the caller's llm flag: in the
         # offline path (llm=False) we always use the deterministic lexical
         # probes, even when a relay key happens to be configured in .env.
         if llm:
-            ragas_block = rm.try_ragas_evaluate(rows)
+            ragas_block = rm.try_ragas_evaluate(generation_rows)
             if ragas_block is not None:
                 rag_metrics = ragas_block
         rag_metrics["refusal_rate"] = round(
             off_refused / off_total if off_total else 0.0, 4)
+        rag_metrics["off_material_total"] = off_total
+        rag_metrics["off_material_refused"] = off_refused
+
+        # --- Retrieval metrics (TRACe-style): QA on-material rows + a separate
+        #     retrieval self-check set (query = unit first sentence). ---
+        qa_retrieval = rm.aggregate_retrieval_metrics(
+            rag_rows, k=5)
+        qa_retrieval["set_name"] = "qa"
+        # Retrieval self-check set: one case per indexed unit.
+        selfcheck_result = build_retrieval_selfcheck_set(self.store)
+        selfcheck_rows: list[dict[str, Any]] = []
+        for scase in selfcheck_result["cases"]:
+            res = await grounded.answer(scase["query"], llm=llm)
+            retrieved = res.get("evidence") or []
+            selfcheck_rows.append({
+                "question": scase["query"],
+                "gold_ids": scase.get("expected_doc_ids", []) or [],
+                "retrieved_ids": rm._retrieved_doc_ids(retrieved),
+                "answer": "",
+            })
+        selfcheck_retrieval = rm.aggregate_retrieval_metrics(
+            selfcheck_rows, k=5)
+        selfcheck_retrieval["set_name"] = "retrieval-selfcheck"
+        selfcheck_retrieval["cases_requested"] = len(selfcheck_result["cases"])
+
+        # On-material coverage: how many in-scope questions actually got an answer.
+        rag_metrics["on_material_total"] = on_total
+        rag_metrics["on_material_answered"] = on_answered
+        rag_metrics["on_material_answered_rate"] = round(
+            on_answered / on_total if on_total else 0.0, 4)
+        rag_metrics["on_material_refused_by_gate"] = on_refused_by_gate
+        rag_metrics["on_material_refused_no_evidence"] = on_refused_no_evidence
+
+        # Nested section for the layered report.
+        rag_metrics["retrieval_metrics"] = {
+            "qa": qa_retrieval,
+            "retrieval_selfcheck": selfcheck_retrieval,
+        }
 
         gains = [p["mastery_gain"] for p in assessment_results]
         reps = [p["question_repetition_rate"] for p in assessment_results]

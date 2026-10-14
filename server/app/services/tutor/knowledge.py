@@ -401,6 +401,13 @@ class KnowledgeBaseIngestor:
         If a transcript (.vtt / .srt / .txt) with the same stem exists beside the
         video, it is also ingested and merged under the same source.
 
+        HONEST STATUS: frame-level video understanding is implemented but NOT
+        part of the demoed pipeline. ``_vlm_caption`` is a no-op unless
+        ``VLM_ENABLED=true`` (default false); with VLM off, keyframe units carry
+        their timestamp but no visual caption. The demo KB contains timestamped
+        *transcript* units (``video@HH:MM:SS`` provenance + clickable playback),
+        not VLM frame captions. Do not present frame understanding as demoed.
+
         Args:
             path: Path to the video file.
             title: Source title (defaults to filename).

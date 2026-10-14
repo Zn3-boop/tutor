@@ -336,6 +336,14 @@ async function upload<T>(path: string, form: FormData): Promise<T> {
 
 export const api = {
   seedDemo: () => http<unknown>('/tutor/ingest/seed-demo', { method: 'POST' }),
+  // 知识库文件上传：multipart，kind=auto 按扩展名自动路由（pdf/pptx/docx/mp4/图片/文本）
+  uploadFile: (file: File, kind = 'auto', title = '') => {
+    const form = new FormData();
+    form.append('kind', kind);
+    form.append('file', file, file.name);
+    if (title) form.append('title', title);
+    return upload<IngestResult>('/tutor/ingest/upload', form);
+  },
   ingestText: (title: string, text: string, kind = 'text') =>
     http<unknown>('/tutor/ingest/text', { method: 'POST', body: JSON.stringify({ title, text, kind }) }),
   ingestFile: (path: string, title = '') =>

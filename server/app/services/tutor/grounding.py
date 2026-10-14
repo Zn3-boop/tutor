@@ -84,18 +84,32 @@ def _query_tokens(query: str) -> set[str]:
     return tokens
 
 
+def _has_cjk(text: str) -> bool:
+    return bool(re.search(r"[\u4e00-\u9fff]", text))
+
+
 def _relevance_ok(query: str, retrieved: list[dict[str, Any]]) -> bool:
     """Cheap offline relevance gate: enough query tokens present in top evidence?
 
     Uses stemmed tokens plus shared-prefix overlap (>= 4 chars), so a query about
     "variable" still matches evidence that says "variables" even though the naive
     stemmer does not collapse them to an identical string.
+
+    Cross-language bypass: when the query is Chinese but evidence is English (or
+    vice-versa), lexical token overlap is inherently unreliable.  The semantic
+    vector retriever already judged these hits relevant, so we trust it and skip
+    the lexical gate to avoid false refusals on zh→en / en→zh queries.
     """
     q_tokens = _query_tokens(query)
     if not q_tokens:
         return True
+
+    query_is_cjk = _has_cjk(query)
     for item in retrieved[:3]:
-        c_tokens = _query_tokens(item.get("content") or "")
+        content = item.get("content") or ""
+        if query_is_cjk != _has_cjk(content):
+            return True
+        c_tokens = _query_tokens(content)
         if not c_tokens:
             continue
         overlap = sum(

@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import threading
 import uuid
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
@@ -907,12 +908,34 @@ async def _background_eval(task_id: str, req: FullEvalRequest):
         _eval_tasks[task_id]["error"] = str(e)
 
 
+def _run_eval_in_thread(task_id: str, req: FullEvalRequest) -> None:
+    """Run the full evaluation off the ASGI event loop.
+
+    run_full_evaluation() performs CPU-intensive synchronous BM25 retrieval
+    loops; when awaited on the single uvicorn event loop those blocks stall
+    response flushing for /evaluate/full (the POST would never return its
+    task_id). Running it in a dedicated thread with its own event loop keeps
+    the API responsive and matches the polling contract in docs/evaluation.md.
+    """
+    loop = asyncio.new_event_loop()
+    try:
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(_background_eval(task_id, req))
+    except Exception:
+        logger.exception("evaluation thread crashed for task %s", task_id)
+    finally:
+        loop.close()
+
+
 @router.post("/evaluate/full")
 async def evaluate_full(req: FullEvalRequest):
-    """Full-pipeline benchmark: runs as background task, returns task_id for polling."""
+    """Full-pipeline benchmark: runs as background thread, returns task_id for polling."""
     task_id = str(uuid.uuid4())
     _eval_tasks[task_id] = {"status": "pending", "result": None, "error": None}
-    asyncio.create_task(_background_eval(task_id, req))
+    threading.Thread(
+        target=_run_eval_in_thread, args=(task_id, req),
+        daemon=True, name=f"eval-{task_id[:8]}",
+    ).start()
     return {"task_id": task_id, "status": "pending"}
 
 

@@ -10,7 +10,7 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-_env_file = Path(__file__).parent.parent.parent / ".env"
+_env_file = Path(__file__).resolve().parent.parent.parent.parent / ".env"
 if _env_file.exists():
     from dotenv import load_dotenv
     load_dotenv(_env_file)
@@ -356,8 +356,14 @@ cloud_provider = CloudVLMProvider()
 
 
 async def describe_image_fallback(*, prompt: str, image: Any, max_new_tokens: int | None = None) -> str:
-    """Try local VLM first, fall back to cloud VLM, return '' on all failures."""
-    for prov in (provider, cloud_provider):
+    """Try cloud VLM first, fall back to local, return '' on all failures.
+
+    Order is cloud → local: on CPU boxes the 3B local model is frequently
+    memory-starved (OOM mid-load), so waiting for it to crash on every call
+    makes ingestion stall. When a cloud vision API is configured it is the
+    fast path; the local model remains the offline fallback.
+    """
+    for prov in (cloud_provider, provider):
         if not prov.enabled:
             continue
         try:

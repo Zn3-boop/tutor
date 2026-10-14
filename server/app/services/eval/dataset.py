@@ -1,21 +1,34 @@
-"""Knowledge-base-driven evaluation test set .
-Builds on-material cases from real unit sentences (gold = the unit's own
-indexed chunk id, so retrieval precision/recall are measurable) and injects
-off-material distractor queries that the grounded tutor must refuse.
-Enhancements:
-- Structured test set with documented ground-truth questions + source locations
-- Multi-source synthesis queries (questions requiring combining multiple units)
-- Explicit refusal ground-truth for off-material queries
-- Citation quality tracking
+"""Knowledge-base-driven evaluation test set.
+
+Two artifact kinds, kept strictly separate:
+
+1. **QA test set** (`build_comprehensive_test_set`): real questions with
+   independent gold answers. Sources: hand-written builtin cases, synthesis
+   cases, bilingual cases, and the LLM-generated on-material bank
+   (``docs/llm_generated_on_material.json``) which has been reviewed and
+   integrated. These are the cases used to report faithfulness / relevancy /
+   refusal — a query must NEVER equal its own expected answer.
+
+2. **Retrieval self-check set** (`build_retrieval_selfcheck_set`): one case per
+   KB unit where the query is the unit's first sentence and the gold is that
+   unit's own chunk id. This measures whether BM25 can find the exact source
+   chunk (recall@k / context recall) — it is a retrieval probe, NOT a QA case,
+   and must never be folded into faithfulness/relevancy numbers.
+
+Off-material distractor queries that the grounded tutor must refuse are part of
+the QA test set.
 """
 from __future__ import annotations
 import json
+import logging
 import os
 import re
 import hashlib
 from typing import Any
 from datetime import datetime
 from collections import Counter
+
+logger = logging.getLogger(__name__)
 
 # ========== Mock TutorStore (如果你的项目已有TutorStore，可以删掉这个mock) ==========
 class TutorStore:
@@ -316,6 +329,11 @@ def _resolve_builtin_doc_ids(store, builtin_cases: list[dict]) -> list[dict]:
 
 def build_test_cases(store, use_builtin: bool = True) -> list[dict]:
     """Build [on-material, off-material] cases from the current KB state.
+
+    NOTE: KB-derived first-sentence fragments are NOT QA cases (their gold
+    equals the query). They live in the retrieval self-check set via
+    ``build_retrieval_selfcheck_set``. This function builds real QA cases:
+    builtin + LLM bank + synthesis + bilingual + off-material.
     Args:
         store: TutorStore instance
         use_builtin: Whether to include built-in benchmark queries
@@ -323,35 +341,16 @@ def build_test_cases(store, use_builtin: bool = True) -> list[dict]:
         List of test cases with query, expected_answer, expected_doc_ids,
         category, difficulty, topic_ids, source_ids, and query_type.
     """
-    topics = store.list_topics_by_id()
     cases: list[dict] = []
-    seen_gold: set[str] = set()
     # Phase 1: Built-in benchmark queries (reproducible across runs)
     if use_builtin:
         builtin_resolved = _resolve_builtin_doc_ids(store, _BUILTIN_ON_MATERIAL_QUERIES)
         cases.extend(builtin_resolved)
-        for c in builtin_resolved:
-            seen_gold.update(c.get("expected_doc_ids", []))
-    # Phase 2: KB-derived queries from actual unit content
-    for u in store.list_units():
-        sent = _first_sentence(u)
-        if not sent:
-            continue
-        cid = u.get("chunk_id") or u.get("unit_id")
-        if cid in seen_gold:  # avoid duplicating gold units across cases
-            continue
-        seen_gold.add(cid)
-        tid = (u.get("topic_ids") or [None])[0]
-        cases.append({
-            "query": sent,
-            "expected_answer": sent,
-            "expected_doc_ids": [cid],
-            "category": "on-material",
-            "difficulty": "medium",
-            "topic_ids": u.get("topic_ids", []) or [],
-            "source_ids": u.get("source_ids", []) or [u.get("source_id", "")],
-            "query_type": "kb-derived",
-        })
+    # Phase 2: Human-reviewed LLM bank + synthesis + bilingual (real QA cases)
+    cases.extend(_load_llm_reviewed_cases(store))
+    for sq in _SYNTHESIS_QUERIES:
+        cases.append(_resolve_query_doc_ids(store, sq))
+    cases.extend(_generate_bilingual_queries(store))
     # Phase 3: Off-material queries (must be refused)
     for q, cat, domain in _OFF_MATERIAL_QUERIES:
         cases.append({
@@ -485,14 +484,110 @@ def save_test_set(cases: list[dict], filepath: str = "") -> str:
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     summary = summarize_dataset_enhanced(cases)
     output = {
-        "version": "1.0",
-        "description": "ECV-Tutor RAG evaluation test set with ground-truth answers and source locations",
+        "version": "2.0",
+        "description": "ECV-Tutor QA test set: hand-written + reviewed LLM on-material queries with independent gold answers, plus off-material refusal cases. KB-derived first-sentence fragments are intentionally excluded — they live in the retrieval self-check set (retrieval_selfcheck.json).",
         "summary": summary,
         "cases": cases,
     }
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
     return filepath
+
+
+def save_retrieval_selfcheck_set(cases: list[dict],
+                                 filepath: str = "") -> str:
+    """Persist the retrieval self-check set to server/tests/retrieval_selfcheck.json."""
+    if not filepath:
+        filepath = os.path.join(_SERVER_ROOT, "tests", "retrieval_selfcheck.json")
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    output = {
+        "version": "1.0",
+        "description": "Retrieval self-check set: one case per KB unit (query = the unit's first sentence, gold = that unit's chunk id). Measures recall@k / context recall only — NOT a QA benchmark; query==answer by construction.",
+        "summary": summarize_dataset(cases),
+        "cases": cases,
+    }
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(output, f, ensure_ascii=False, indent=2)
+    return filepath
+
+
+_REPO_ROOT = os.path.abspath(os.path.join(_SERVER_ROOT, ".."))
+# v2.0 dataset: manual_22 + llm_reviewed_17_v2 merged (kch_* chunk anchors).
+# 旧 118 bank (docs/llm_generated_on_material.json) 与 candidates.json 已从
+# 加载路径移除，不再被 eval 引用。
+_LLM_BANK_PATH = os.path.join(_SERVER_ROOT, "tests", "dataset_v2_merged.json")
+
+
+def _load_llm_reviewed_cases(store) -> list[dict]:
+    """Load the human-reviewed LLM on-material bank.
+
+    ``server/tests/dataset_v2_merged.json`` holds the v2.0 dataset:
+    manual_22 + llm_reviewed_17_v2 merged. Each case carries a kch_* chunk
+    anchor (``expected_src``) that points at the offline KB chunk used to
+    author the question — this is the "chunk-level traceability" gold.
+
+    Two schema branches are handled:
+    - v2.0 (new): ``question`` / ``answer`` / ``expected_src`` → gold is the
+      kch_* chunk id directly. No store re-resolution needed.
+    - legacy (old 118 bank, if ever loaded): ``query`` / ``expected_answer`` /
+      ``expected_doc_ids`` with topic_ids re-resolved against the current
+      store (unit UUIDs change between seeds; topic ids are stable).
+    """
+    try:
+        with open(_LLM_BANK_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except OSError:
+        logger.warning("LLM on-material bank missing (%s); QA set built without it",
+                       _LLM_BANK_PATH)
+        return []
+    questions = data.get("questions", []) or []
+    cases = []
+    for q in questions:
+        if not isinstance(q, dict):
+            continue
+        # --- v2.0 schema: question/answer/expected_src (kch_* chunk anchor) ---
+        if (q.get("question") or "").strip() and q.get("answer"):
+            case = {
+                "query": q["question"],
+                "expected_answer": q["answer"],
+                "expected_doc_ids": [q["expected_src"]] if q.get("expected_src") else [],
+                "category": "on-material",
+                "query_type": "llm_reviewed",
+                "language": q.get("language", "en"),
+                "difficulty": q.get("difficulty", "medium"),
+                "topic_ids": list(q.get("topic_ids") or []),
+                "source_ids": [q["expected_src"]] if q.get("expected_src") else [],
+                "generated_by": q.get("generated_by", "llm-glm-5.3-flash"),
+                "expected_src": q.get("expected_src", ""),
+                "origin": q.get("origin", "llm"),
+            }
+            cases.append(case)
+            continue
+        # --- legacy schema: query/expected_answer + topic re-resolution ---
+        if not (q.get("query") or "").strip():
+            continue
+        case = dict(q)
+        case.setdefault("category", "on-material")
+        case.setdefault("query_type", "llm_reviewed")
+        case.setdefault("language", "en")
+        case.setdefault("difficulty", "medium")
+        case.setdefault("source_ids", [])
+        case.setdefault("generated_by", "llm-glm-5.3-flash")
+        topic_ids = case.get("topic_ids") or []
+        case["topic_ids"] = list(topic_ids)
+        # Re-resolve gold chunks against the current store (unit UUIDs change
+        # between seeds; topic ids are stable).
+        case["expected_doc_ids"] = []
+        if topic_ids:
+            seen: set[str] = set()
+            for u in store.list_units():
+                if any(tid in (u.get("topic_ids") or []) for tid in topic_ids):
+                    cid = u.get("chunk_id") or u.get("unit_id")
+                    if cid and cid not in seen:
+                        seen.add(cid)
+                        case["expected_doc_ids"].append(cid)
+        cases.append(case)
+    return cases
 
 
 def load_test_set(filepath: str = "") -> list[dict]:
@@ -510,15 +605,58 @@ def load_test_set(filepath: str = "") -> list[dict]:
 
 
 def build_comprehensive_test_set(store: TutorStore) -> dict[str, Any]:
-    """Build a comprehensive test set with all enhancements per store state.
+    """Build the QA test set per store state.
+
+    On-material cases come from hand-written builtin queries, synthesis queries,
+    bilingual queries, and the human-reviewed LLM bank
+    (``docs/llm_generated_on_material.json``). KB-derived first-sentence
+    fragments are intentionally NOT QA cases — they live in the retrieval
+    self-check set (``build_retrieval_selfcheck_set``) so that faithfulness /
+    relevancy numbers are never computed on query==answer tautologies.
+
     Results are persisted to server/tests/test_set.json for reproducibility.
     Use ``load_test_set`` to reuse the exact same cases across runs.
     """
     # Phase 1: Built-in queries
     builtin_resolved = _resolve_builtin_doc_ids(store, _BUILTIN_ON_MATERIAL_QUERIES)
-    # Phase 2 and beyond are appended in place; start from builtin list.
+    # Phase 2+ are appended in place; start from builtin list.
     return _build_from_seed(store, builtin_resolved,
                             _builtin_gold(builtin_resolved))
+
+
+def build_retrieval_selfcheck_set(store: TutorStore) -> dict[str, Any]:
+    """Build the retrieval self-check set (one case per KB unit).
+
+    Each case's query is the unit's own first sentence and the gold is that
+    unit's chunk id. This measures "can BM25 find the exact source chunk", i.e.
+    recall@k / context recall — a retrieval probe, NOT a QA benchmark. It must
+    never be merged into the QA test set (query would equal the answer).
+    """
+    cases: list[dict] = []
+    seen: set[str] = set()
+    for u in store.list_units():
+        sent = _first_sentence(u)
+        if not sent:
+            continue
+        cid = u.get("chunk_id") or u.get("unit_id")
+        if cid in seen:
+            continue
+        seen.add(cid)
+        cases.append({
+            "query": sent,
+            "expected_answer": sent,
+            "expected_doc_ids": [cid],
+            "category": "retrieval-selfcheck",
+            "difficulty": "medium",
+            "topic_ids": u.get("topic_ids", []) or [],
+            "source_ids": u.get("source_ids", []) or [u.get("source_id", "")],
+            "query_type": "kb-derived-retrieval-probe",
+        })
+    return {
+        "cases": cases,
+        "summary": summarize_dataset(cases),
+        "path": save_retrieval_selfcheck_set(cases),
+    }
 
 
 def _builtin_gold(builtin_resolved: list[dict]) -> set[str]:
@@ -531,28 +669,11 @@ def _builtin_gold(builtin_resolved: list[dict]) -> set[str]:
 def _build_from_seed(store: TutorStore,
                      seed_cases: list[dict],
                      seen_gold: set[str]) -> dict[str, Any]:
-    """Shared builder: seeded cases + KB-derived + synthesis + bilingual + off-material."""
+    """Shared builder: seeded cases + LLM bank + synthesis + bilingual + off-material."""
     cases = list(seed_cases)
     seen_gold = set(seen_gold)
-    # Phase 2: KB-derived queries
-    for u in store.list_units():
-        sent = _first_sentence(u)
-        if not sent:
-            continue
-        cid = u.get("chunk_id") or u.get("unit_id")
-        if cid in seen_gold:
-            continue
-        seen_gold.add(cid)
-        cases.append({
-            "query": sent,
-            "expected_answer": sent,
-            "expected_doc_ids": [cid],
-            "category": "on-material",
-            "difficulty": "medium",
-            "topic_ids": u.get("topic_ids", []) or [],
-            "source_ids": u.get("source_ids", []) or [u.get("source_id", "")],
-            "query_type": "kb-derived",
-        })
+    # Phase 2: Human-reviewed LLM-generated on-material bank (docs/llm_generated_on_material.json)
+    cases.extend(_load_llm_reviewed_cases(store))
     # Phase 3: Synthesis queries
     for sq in _SYNTHESIS_QUERIES:
         cases.append(_resolve_query_doc_ids(store, sq))
@@ -600,3 +721,7 @@ if __name__ == "__main__":
     print(f"测试集生成完成，文件路径：{result['path']}")
     print("数据集统计：")
     print(json.dumps(result["summary"], ensure_ascii=False, indent=2))
+    selfcheck = build_retrieval_selfcheck_set(store)
+    print(f"\n检索自检集生成完成，文件路径：{selfcheck['path']}")
+    print("检索自检集统计：")
+    print(json.dumps(selfcheck["summary"], ensure_ascii=False, indent=2))

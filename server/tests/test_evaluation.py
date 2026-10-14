@@ -61,8 +61,13 @@ def _seed_store() -> TutorStore:
 def _run_full_eval(store: TutorStore, **kwargs):
     """Run the runner with RAGAS mocked away so tests stay fast and offline."""
     runner = EvaluationRunner(store, generator=AssessmentGenerator(store))
+    # build_retrieval_selfcheck_set writes to the REAL archive
+    # (server/tests/retrieval_selfcheck.json); in tests we stub it to an empty
+    # list so a temp store never clobbers the real 1172-case self-check set.
     with mock.patch("app.services.eval.dataset.save_test_set",
                     return_value=str(Path(tempfile.gettempdir()) / "test_set.json")), \
+         mock.patch("app.services.eval.dataset.save_retrieval_selfcheck_set",
+                    return_value=str(Path(tempfile.gettempdir()) / "retrieval_selfcheck.json")), \
          mock.patch("app.services.eval.ragas_metrics.try_ragas_evaluate",
                     return_value=None):
         return asyncio.run(runner.run_full_evaluation(
@@ -103,6 +108,22 @@ def test_full_evaluation_returns_complete_offline_structure():
     # Off-material queries were refused by the grounded tutor.
     assert result["rag_metrics"]["refusal_rate"] >= 0.0
     assert "test_set_path" in result
+
+    # TRACe-style split: retrieval metrics reported separately from generation.
+    # Generation metrics average over answered on-material rows; retrieval
+    # metrics average over rows with resolved gold ids.
+    rm = result["rag_metrics"]
+    assert "retrieval_metrics" in rm
+    assert "qa" in rm["retrieval_metrics"]
+    assert "retrieval_selfcheck" in rm["retrieval_metrics"]
+    assert "recall_at_k" in rm["retrieval_metrics"]["qa"]
+    assert "mrr_at_k" in rm["retrieval_metrics"]["qa"]
+    assert "ndcg_at_k" in rm["retrieval_metrics"]["qa"]
+    # On-material coverage is explicit, not hidden.
+    assert rm["on_material_total"] >= 1
+    assert 0.0 <= rm["on_material_answered_rate"] <= 1.0
+    assert rm["on_material_refused_by_gate"] >= 0
+    assert rm["on_material_refused_no_evidence"] >= 0
 
 
 def test_full_evaluation_test_set_summary_is_consistent():

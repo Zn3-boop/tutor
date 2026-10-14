@@ -68,6 +68,83 @@ def context_recall_from_ids(retrieved_ids: list[str],
     return min(1.0, hits / len(gold))
 
 
+# ---------------- Retrieval metrics (RAGBench/TRACe style, doc-level) ----
+# RAG chunks carry the source unit in meta.doc_id (see KnowledgeBaseIngestor
+# ._index_unit -> index_document(doc_id=unit_id)), so retrieval metrics compare
+# at the DOC level against the gold unit ids — same as the QA test set's
+# expected_doc_ids. Using meta.doc_id avoids chunk-suffix noise.
+
+
+def _retrieved_doc_ids(evidence: list[dict[str, Any]]) -> list[str]:
+    """Extract doc-level ids from grounded-tutor evidence chunks."""
+    return [
+        (r.get("meta") or {}).get("doc_id") or r.get("chunk_id", "")
+        for r in (evidence or [])
+        if r.get("meta") or r.get("chunk_id")
+    ]
+
+
+def recall_at_k(retrieved_ids: list[str], gold_ids: list[str], k: int = 5) -> float:
+    """Proportion of gold units found in the top-k retrieved docs."""
+    gold = set(gold_ids or [])
+    if not gold:
+        return 0.0
+    hits = gold & set((retrieved_ids or [])[:k])
+    return min(1.0, len(hits) / len(gold))
+
+
+def mrr_at_k(retrieved_ids: list[str], gold_ids: list[str], k: int = 5) -> float:
+    """Reciprocal rank of the first gold unit among the top-k retrieved docs."""
+    gold = set(gold_ids or [])
+    for i, rid in enumerate((retrieved_ids or [])[:k]):
+        if rid in gold:
+            return 1.0 / (i + 1)
+    return 0.0
+
+
+def ndcg_at_k(retrieved_ids: list[str], gold_ids: list[str], k: int = 5) -> float:
+    """NDCG@k with binary relevance w.r.t. the gold set."""
+    gold = set(gold_ids or [])
+    ranked = (retrieved_ids or [])[:k]
+    dcg = 0.0
+    for i, rid in enumerate(ranked):
+        rel = 1.0 if rid in gold else 0.0
+        dcg += rel / (i + 1)
+    ideal = [1.0] * min(len(gold), k) + [0.0] * max(0, k - len(gold))
+    idcg = sum(1.0 / (i + 1) for i in range(len(ideal)) if ideal[i] > 0)
+    return dcg / idcg if idcg > 0 else 0.0
+
+
+def aggregate_retrieval_metrics(
+    rows: list[dict[str, Any]], k: int = 5
+) -> dict[str, Any]:
+    """Aggregate retrieval metrics (recall@k / MRR@k / NDCG@k) over QA rows.
+
+    Each row: {retrieved_ids, gold_ids}. Rows without gold ids are excluded
+    (retrieval metrics are undefined without ground truth). ``set_name`` is an
+    optional label carried by the caller (e.g. "qa" or "retrieval-selfcheck").
+    """
+    with_gold = [r for r in rows if r.get("gold_ids") or r.get("expected_doc_ids")]
+    if not with_gold:
+        return {
+            "retrieval_cases": 0,
+            "recall_at_k": 0.0,
+            "mrr_at_k": 0.0,
+            "ndcg_at_k": 0.0,
+            "note": "no rows with gold ids",
+        }
+    recall = [recall_at_k(r.get("retrieved_ids") or [], r.get("gold_ids") or r.get("expected_doc_ids") or [], k) for r in with_gold]
+    mrr = [mrr_at_k(r.get("retrieved_ids") or [], r.get("gold_ids") or r.get("expected_doc_ids") or [], k) for r in with_gold]
+    ndcg = [ndcg_at_k(r.get("retrieved_ids") or [], r.get("gold_ids") or r.get("expected_doc_ids") or [], k) for r in with_gold]
+    return {
+        "retrieval_cases": len(with_gold),
+        "recall_at_k": round(sum(recall) / len(recall), 4),
+        "mrr_at_k": round(sum(mrr) / len(mrr), 4),
+        "ndcg_at_k": round(sum(ndcg) / len(ndcg), 4),
+        "k": k,
+    }
+
+
 def aggregate_rag_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     """Aggregate per-case rows into mean metrics.
 
@@ -335,6 +412,22 @@ def try_ragas_evaluate(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
         metas = {k: _to_float(raw.get(k))
                  for k in ("faithfulness", "answer_relevancy",
                            "context_precision", "context_recall")}
+
+        # Degenerate-run guard: a judge that scores every metric exactly 0.0
+        # (e.g. model refused every claim, or every sub-call failed and RAGAS
+        # 0.2.x silently filled 0.0) produced NO valid signal. Treat it as an
+        # unavailable run so the caller falls back to lexical probes with
+        # ``ragas_used: false`` instead of reporting a fake "all-zero RAGAS".
+        if (metas.get("faithfulness", 0.0) == 0.0
+                and metas.get("context_precision", 0.0) == 0.0
+                and metas.get("context_recall", 0.0) == 0.0):
+            logger.warning(
+                "RAGAS LLM-judge returned all-zero scores over %d rows "
+                "(faithfulness=0, context_precision=0, context_recall=0); "
+                "treating as an invalid run and falling back to lexical probes.",
+                len(rows),
+            )
+            return None
 
         # Every metric is a real RAGAS computation: faithfulness/relevancy use
         # the chat-completions LLM judge (the relay's /chat/completions), and
