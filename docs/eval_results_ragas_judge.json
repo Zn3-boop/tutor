@@ -1,10 +1,9 @@
 {
   "ok": true,
-  "ragas_used": true,
-  "ragas_judge_model": "glm-5.3-flash",
+  "ragas_used": false,
   "test_dataset": {
-    "total": 1283,
-    "on_material": 1185,
+    "total": 238,
+    "on_material": 140,
     "off_material": 98,
     "topic_coverage": [
       "t_control",
@@ -20,22 +19,21 @@
       "t_variable"
     ],
     "query_type_distribution": {
-      "factual": 3,
+      "factual": 50,
       "comparison": 3,
-      "conceptual": 3,
-      "procedural": 1,
-      "kb-derived": 1163,
+      "conceptual": 50,
+      "procedural": 25,
       "synthesis": 1,
       "bilingual_comparison": 1,
       "bilingual_factual": 10,
       "off-material": 98
     },
     "language_distribution": {
-      "en": 1278,
-      "zh": 5
+      "en": 187,
+      "zh": 51
     },
     "domain_distribution": {
-      "unknown": 1185,
+      "unknown": 140,
       "geography": 8,
       "cooking": 7,
       "finance": 6,
@@ -63,38 +61,31 @@
       "music": 2
     },
     "detailed_query_types": {
-      "factual": 3,
+      "factual": 50,
       "comparison": 3,
-      "conceptual": 3,
-      "procedural": 1,
-      "kb-derived": 1163,
+      "conceptual": 50,
+      "procedural": 25,
       "synthesis": 1,
       "bilingual_comparison": 1,
       "bilingual_factual": 10,
       "off-material": 98
     },
-    "generated_at": "2026-10-12T16:54:15.898165"
+    "generated_at": "2026-10-13T23:27:00.284947"
   },
   "rag_metrics": {
-    "faithfulness": 0.0,
-    "answer_relevancy": 0.5410367423770127,
-    "context_precision": 0.0,
-    "context_recall": 0.0,
-    "ragas_used": true,
-    "answered_cases": 50,
-    "golden_cases": 50,
+    "faithfulness": 0.5235,
+    "answer_relevancy": 0.6994,
+    "context_precision": 0.7014,
+    "context_recall": 0.0038,
+    "answered_cases": 17,
+    "golden_cases": 48,
     "refusal_rate": 1.0
   },
   "all_metrics": {
-    "faithfulness": 0.0,
-    "answer_relevancy": 0.5410367423770127,
-    "context_precision": 0.0,
-    "context_recall": 0.0,
+    "faithfulness": 0.5235,
+    "answer_relevancy": 0.6994,
+    "context_precision": 0.7014,
+    "context_recall": 0.0038,
     "refusal_rate": 1.0
-  },
-  "elapsed_seconds": {
-    "grounded_tutor": 537.9,
-    "ragas_judge": 1243.1,
-    "total": 1781.0
   }
 }

@@ -1,0 +1,1039 @@
+{
+  "rag_demo": [
+    {
+      "question": "What is a variable in Python?",
+      "type": "in_kb",
+      "status": "answered",
+      "answer": "Answer based on retrieved evidence: What is a variable in Python?\n\n[1] (video@00:00:07) A variable is a name that refers to a value stored in memory.",
+      "citations": [
+        {
+          "index": 1,
+          "label": "video@00:00:07",
+          "chunk_id": "unit_d1e7f94d1be6_c0_dbb6d504ba",
+          "source_url": "video@00:00:07"
+        }
+      ],
+      "retrieval_meta": {
+        "vector_count": 13,
+        "bm25_count": 20,
+        "merged_count": 3
+      },
+      "evidence": [
+        {
+          "content": "A variable is a name that refers to a value stored in memory.",
+          "meta": {
+            "chunk_id": "unit_d1e7f94d1be6_c0_dbb6d504ba",
+            "doc_id": "unit_d1e7f94d1be6",
+            "doc_title": "unit_d1e7f94d1be6",
+            "section_path": [],
+            "chunk_index": 0,
+            "version": 1,
+            "created_at": 1791902572.6483574,
+            "updated_at": 1791902572.6483574,
+            "source_type": "text",
+            "acl_tags": [
+              "public"
+            ],
+            "source_url": "video@00:00:07",
+            "checksum": "9a0e821af9ae",
+            "char_count": 61,
+            "content_hash": "dbb6d504ba",
+            "is_parent": false,
+            "child_count": 0,
+            "parent_id": "",
+            "parent_chunk_index": -1,
+            "extra": {}
+          },
+          "chunk_id": "unit_d1e7f94d1be6_c0_dbb6d504ba",
+          "score": 0.7609663605690002,
+          "source": "vector",
+          "rrf_score": 0.01639344262295082,
+          "merged_source": "rrf",
+          "rerank_score": 0.30106058716773987,
+          "weighted_score": 0.017518363556252078
+        },
+        {
+          "content": "A variable is a name that refers to a value stored in memory.",
+          "meta": {
+            "chunk_id": "unit_319eefbe8a93_c0_dbb6d504ba",
+            "doc_id": "unit_319eefbe8a93",
+            "doc_title": "unit_319eefbe8a93",
+            "section_path": [],
+            "chunk_index": 0,
+            "version": 1,
+            "created_at": 1791901340.7099931,
+            "updated_at": 1791901340.7099931,
+            "source_type": "text",
+            "acl_tags": [
+              "public"
+            ],
+            "source_url": "video@00:00:07",
+            "checksum": "9a0e821af9ae",
+            "char_count": 61,
+            "content_hash": "dbb6d504ba",
+            "is_parent": false,
+            "child_count": 0,
+            "parent_id": "",
+            "parent_chunk_index": -1,
+            "extra": {}
+          },
+          "chunk_id": "unit_319eefbe8a93_c0_dbb6d504ba",
+          "score": 0.7609663605690002,
+          "source": "vector",
+          "rrf_score": 0.016129032258064516,
+          "merged_source": "rrf",
+          "rerank_score": 0.30106058716773987,
+          "weighted_score": 0.017227854750709374
+        },
+        {
+          "content": "A variable is a name that refers to a value stored in memory.",
+          "meta": {
+            "chunk_id": "unit_1313ebbca7a2_c0_dbb6d504ba",
+            "doc_id": "unit_1313ebbca7a2",
+            "doc_title": "unit_1313ebbca7a2",
+            "section_path": [],
+            "chunk_index": 0,
+            "version": 1,
+            "created_at": 1791898422.3116283,
+            "updated_at": 1791898422.3116283,
+            "source_type": "text",
+            "acl_tags": [
+              "public"
+            ],
+            "source_url": "video@00:00:07",
+            "checksum": "9a0e821af9ae",
+            "char_count": 61,
+            "content_hash": "dbb6d504ba",
+            "is_parent": false,
+            "child_count": 0,
+            "parent_id": "",
+            "parent_chunk_index": -1,
+            "extra": {}
+          },
+          "chunk_id": "unit_1313ebbca7a2_c0_dbb6d504ba",
+          "score": 0.7609663605690002,
+          "source": "vector",
+          "rrf_score": 0.015873015873015872,
+          "merged_source": "rrf",
+          "rerank_score": 0.30106058716773987,
+          "weighted_score": 0.016935880721901678
+        }
+      ],
+      "detected_language": "en"
+    },
+    {
+      "question": "How does the def keyword define a function?",
+      "type": "in_kb",
+      "status": "answered",
+      "answer": "Answer based on retrieved evidence: How does the def keyword define a function?\n\n[1] (video@00:00:32) Functions are defined using the def keyword in Python.",
+      "citations": [
+        {
+          "index": 1,
+          "label": "video@00:00:32",
+          "chunk_id": "unit_276353bd4808_c0_6130542121",
+          "source_url": "video@00:00:32"
+        }
+      ],
+      "retrieval_meta": {
+        "vector_count": 10,
+        "bm25_count": 10,
+        "merged_count": 3
+      },
+      "evidence": [
+        {
+          "content": "Functions are defined using the def keyword in Python.",
+          "meta": {
+            "chunk_id": "unit_276353bd4808_c0_6130542121",
+            "doc_id": "unit_276353bd4808",
+            "doc_title": "unit_276353bd4808",
+            "section_path": [],
+            "chunk_index": 0,
+            "version": 1,
+            "created_at": 1791898422.750348,
+            "updated_at": 1791898422.750348,
+            "source_type": "text",
+            "acl_tags": [
+              "public"
+            ],
+            "source_url": "video@00:00:32",
+            "checksum": "f82706968f69",
+            "char_count": 54,
+            "content_hash": "6130542121",
+            "is_parent": false,
+            "child_count": 0,
+            "parent_id": "",
+            "parent_chunk_index": -1,
+            "extra": {}
+          },
+          "chunk_id": "unit_276353bd4808_c0_6130542121",
+          "score": 0.8549862504005432,
+          "source": "vector",
+          "rrf_score": 0.015873015873015872,
+          "merged_source": "rrf",
+          "rerank_score": 0.1814098209142685,
+          "weighted_score": 0.016935867174989076
+        },
+        {
+          "content": "Functions are defined using the def keyword in Python.",
+          "meta": {
+            "chunk_id": "unit_e85e26f37dfd_c0_6130542121",
+            "doc_id": "unit_e85e26f37dfd",
+            "doc_title": "unit_e85e26f37dfd",
+            "section_path": [],
+            "chunk_index": 0,
+            "version": 1,
+            "created_at": 1791902573.0796492,
+            "updated_at": 1791902573.0796492,
+            "source_type": "text",
+            "acl_tags": [
+              "public"
+            ],
+            "source_url": "video@00:00:32",
+            "checksum": "f82706968f69",
+            "char_count": 54,
+            "content_hash": "6130542121",
+            "is_parent": false,
+            "child_count": 0,
+            "parent_id": "",
+            "parent_chunk_index": -1,
+            "extra": {}
+          },
+          "chunk_id": "unit_e85e26f37dfd_c0_6130542121",
+          "score": 0.8549862504005432,
+          "source": "vector",
+          "rrf_score": 0.01639344262295082,
+          "merged_source": "rrf",
+          "rerank_score": 0.1814097911119461,
+          "weighted_score": 0.017518349472847028
+        },
+        {
+          "content": "Functions are defined using the def keyword in Python.",
+          "meta": {
+            "chunk_id": "unit_5b1a1d29af43_c0_6130542121",
+            "doc_id": "unit_5b1a1d29af43",
+            "doc_title": "unit_5b1a1d29af43",
+            "section_path": [],
+            "chunk_index": 0,
+            "version": 1,
+            "created_at": 1791901341.226666,
+            "updated_at": 1791901341.226666,
+            "source_type": "text",
+            "acl_tags": [
+              "public"
+            ],
+            "source_url": "video@00:00:32",
+            "checksum": "f82706968f69",
+            "char_count": 54,
+            "content_hash": "6130542121",
+            "is_parent": false,
+            "child_count": 0,
+            "parent_id": "",
+            "parent_chunk_index": -1,
+            "extra": {}
+          },
+          "chunk_id": "unit_5b1a1d29af43_c0_6130542121",
+          "score": 0.8549862504005432,
+          "source": "vector",
+          "rrf_score": 0.016129032258064516,
+          "merged_source": "rrf",
+          "rerank_score": 0.1814097911119461,
+          "weighted_score": 0.01722784145828782
+        }
+      ],
+      "detected_language": "en"
+    },
+    {
+      "question": "Explain the return statement.",
+      "type": "in_kb",
+      "status": "answered",
+      "answer": "Answer based on retrieved evidence: Explain the return statement.\n\n[1] (video@00:00:37) The return statement sends a value back to the caller of the function.\n[3] (p.39) Chapter 3\nFunctions\nIn the context of programming, a function is a named sequence of statements that performs\na computation. When you deﬁne a function, you specify the name and the sequence of\nstatements. Later, you can “call” the function by name.\n3.1\nFunction calls\nWe have already seen one example of a function call:\n>>> type(42)\n<class 'int'>\nThe name of the function is type. The expression in parentheses is called the argument of\nthe function. The result, for this function, is the type of the argument.\nIt is common to say that a function “takes” an argument and “returns” a result.",
+      "citations": [
+        {
+          "index": 1,
+          "label": "video@00:00:37",
+          "chunk_id": "unit_a03f6c66e580_c0_13ce9e3dfe",
+          "source_url": "video@00:00:37"
+        },
+        {
+          "index": 3,
+          "label": "p.39",
+          "chunk_id": "unit_7cc53961f2f7_c0_26f5b33774",
+          "source_url": "p.39"
+        }
+      ],
+      "retrieval_meta": {
+        "vector_count": 13,
+        "bm25_count": 20,
+        "merged_count": 3
+      },
+      "evidence": [
+        {
+          "content": "The return statement sends a value back to the caller of the function.",
+          "meta": {
+            "chunk_id": "unit_a03f6c66e580_c0_13ce9e3dfe",
+            "doc_id": "unit_a03f6c66e580",
+            "doc_title": "unit_a03f6c66e580",
+            "section_path": [],
+            "chunk_index": 0,
+            "version": 1,
+            "created_at": 1791902573.1697757,
+            "updated_at": 1791902573.1697757,
+            "source_type": "text",
+            "acl_tags": [
+              "public"
+            ],
+            "source_url": "video@00:00:37",
+            "checksum": "abf999fcffb8",
+            "char_count": 70,
+            "content_hash": "13ce9e3dfe",
+            "is_parent": false,
+            "child_count": 0,
+            "parent_id": "",
+            "parent_chunk_index": -1,
+            "extra": {}
+          },
+          "chunk_id": "unit_a03f6c66e580_c0_13ce9e3dfe",
+          "score": 0.7761760950088501,
+          "source": "vector",
+          "rrf_score": 0.01639344262295082,
+          "merged_source": "rrf",
+          "rerank_score": 0.05550649017095566,
+          "weighted_score": 0.017518333679079755
+        },
+        {
+          "content": "The return statement sends a value back to the caller of the function.",
+          "meta": {
+            "chunk_id": "unit_e604a0c540bf_c0_13ce9e3dfe",
+            "doc_id": "unit_e604a0c540bf",
+            "doc_title": "unit_e604a0c540bf",
+            "section_path": [],
+            "chunk_index": 0,
+            "version": 1,
+            "created_at": 1791901341.3216076,
+            "updated_at": 1791901341.3216076,
+            "source_type": "text",
+            "acl_tags": [
+              "public"
+            ],
+            "source_url": "video@00:00:37",
+            "checksum": "abf999fcffb8",
+            "char_count": 70,
+            "content_hash": "13ce9e3dfe",
+            "is_parent": false,
+            "child_count": 0,
+            "parent_id": "",
+            "parent_chunk_index": -1,
+            "extra": {}
+          },
+          "chunk_id": "unit_e604a0c540bf_c0_13ce9e3dfe",
+          "score": 0.7761760950088501,
+          "source": "vector",
+          "rrf_score": 0.016129032258064516,
+          "merged_source": "rrf",
+          "rerank_score": 0.05550649017095566,
+          "weighted_score": 0.01722782596467373
+        },
+        {
+          "content": "Chapter 3\nFunctions\nIn the context of programming, a function is a named sequence of statements that performs\na computation. When you deﬁne a function, you specify the name and the sequence of\nstatements. Later, you can “call” the function by name.\n3.1\nFunction calls\nWe have already seen one example of a function call:\n>>> type(42)\n<class 'int'>\nThe name of the function is type. The expression in parentheses is called the argument of\nthe function. The result, for this function, is the type of the argument.\nIt is common to say that a function “takes” an argument and “returns” a result.",
+          "meta": {
+            "chunk_id": "unit_7cc53961f2f7_c0_26f5b33774",
+            "doc_id": "unit_7cc53961f2f7",
+            "doc_title": "unit_7cc53961f2f7",
+            "section_path": [],
+            "chunk_index": 0,
+            "version": 1,
+            "created_at": 1791898207.342768,
+            "updated_at": 1791898207.342768,
+            "source_type": "pdf",
+            "acl_tags": [
+              "public"
+            ],
+            "source_url": "p.39",
+            "checksum": "78cd04cd29f7",
+            "char_count": 591,
+            "content_hash": "26f5b33774",
+            "is_parent": false,
+            "child_count": 0,
+            "parent_id": "",
+            "parent_chunk_index": -1,
+            "extra": {}
+          },
+          "chunk_id": "unit_7cc53961f2f7_c0_26f5b33774",
+          "score": 0.5139929056167603,
+          "source": "vector",
+          "rrf_score": 0.027031963470319637,
+          "merged_source": "rrf",
+          "rerank_score": 0.0004029613046441227,
+          "weighted_score": 0.02883966214001465
+        }
+      ],
+      "detected_language": "en"
+    },
+    {
+      "question": "What is the population of Mars?",
+      "type": "out_of_kb",
+      "status": "refused",
+      "answer": "",
+      "citations": [],
+      "retrieval_meta": {
+        "vector_count": 0,
+        "bm25_count": 0,
+        "merged_count": 0
+      },
+      "evidence": [],
+      "detected_language": "en",
+      "refuse_reason": "该问题涉及课程范围外的主题（如地理、历史、体育、投资等），系统已自动识别并拒绝回答。",
+      "off_material": true
+    }
+  ],
+  "bkt_demo": {
+    "ok": true,
+    "student_id": "student_4481e79e1011",
+    "n_answers": 15,
+    "n_wrong": 4,
+    "n_topics": 8,
+    "trajectory": [
+      {
+        "step": 1,
+        "mastery": 0.66
+      },
+      {
+        "step": 2,
+        "mastery": 0.689
+      },
+      {
+        "step": 3,
+        "mastery": 0.642
+      },
+      {
+        "step": 4,
+        "mastery": 0.699
+      },
+      {
+        "step": 5,
+        "mastery": 0.863
+      },
+      {
+        "step": 6,
+        "mastery": 0.7
+      },
+      {
+        "step": 7,
+        "mastery": 0.86
+      },
+      {
+        "step": 8,
+        "mastery": 0.964
+      },
+      {
+        "step": 9,
+        "mastery": 0.845
+      },
+      {
+        "step": 10,
+        "mastery": 0.914
+      },
+      {
+        "step": 11,
+        "mastery": 0.952
+      },
+      {
+        "step": 12,
+        "mastery": 0.958
+      },
+      {
+        "step": 13,
+        "mastery": 0.898
+      },
+      {
+        "step": 14,
+        "mastery": 0.904
+      },
+      {
+        "step": 15,
+        "mastery": 0.912
+      },
+      {
+        "step": 16,
+        "mastery": 0.885
+      },
+      {
+        "step": 17,
+        "mastery": 0.944
+      },
+      {
+        "step": 18,
+        "mastery": 0.978
+      },
+      {
+        "step": 19,
+        "mastery": 0.989
+      },
+      {
+        "step": 20,
+        "mastery": 0.99
+      },
+      {
+        "step": 21,
+        "mastery": 0.951
+      },
+      {
+        "step": 22,
+        "mastery": 0.984
+      },
+      {
+        "step": 23,
+        "mastery": 0.991
+      },
+      {
+        "step": 24,
+        "mastery": 0.997
+      },
+      {
+        "step": 25,
+        "mastery": 0.998
+      },
+      {
+        "step": 26,
+        "mastery": 0.988
+      },
+      {
+        "step": 27,
+        "mastery": 0.994
+      },
+      {
+        "step": 28,
+        "mastery": 0.995
+      },
+      {
+        "step": 29,
+        "mastery": 0.997
+      },
+      {
+        "step": 30,
+        "mastery": 0.997
+      },
+      {
+        "step": 31,
+        "mastery": 0.998
+      },
+      {
+        "step": 32,
+        "mastery": 0.998
+      },
+      {
+        "step": 33,
+        "mastery": 0.991
+      },
+      {
+        "step": 34,
+        "mastery": 0.992
+      },
+      {
+        "step": 35,
+        "mastery": 0.993
+      },
+      {
+        "step": 36,
+        "mastery": 0.963
+      },
+      {
+        "step": 37,
+        "mastery": 0.992
+      },
+      {
+        "step": 38,
+        "mastery": 0.998
+      },
+      {
+        "step": 39,
+        "mastery": 0.99
+      },
+      {
+        "step": 40,
+        "mastery": 0.997
+      },
+      {
+        "step": 41,
+        "mastery": 0.998
+      },
+      {
+        "step": 42,
+        "mastery": 0.998
+      },
+      {
+        "step": 43,
+        "mastery": 0.993
+      },
+      {
+        "step": 44,
+        "mastery": 0.994
+      },
+      {
+        "step": 45,
+        "mastery": 0.997
+      },
+      {
+        "step": 46,
+        "mastery": 0.998
+      },
+      {
+        "step": 47,
+        "mastery": 0.999
+      },
+      {
+        "step": 48,
+        "mastery": 0.996
+      },
+      {
+        "step": 49,
+        "mastery": 0.997
+      },
+      {
+        "step": 50,
+        "mastery": 0.999
+      },
+      {
+        "step": 51,
+        "mastery": 0.994
+      },
+      {
+        "step": 52,
+        "mastery": 0.998
+      },
+      {
+        "step": 53,
+        "mastery": 0.998
+      },
+      {
+        "step": 54,
+        "mastery": 0.994
+      },
+      {
+        "step": 55,
+        "mastery": 0.995
+      },
+      {
+        "step": 56,
+        "mastery": 0.997
+      },
+      {
+        "step": 57,
+        "mastery": 0.997
+      },
+      {
+        "step": 58,
+        "mastery": 0.983
+      },
+      {
+        "step": 59,
+        "mastery": 0.997
+      },
+      {
+        "step": 60,
+        "mastery": 0.998
+      },
+      {
+        "step": 61,
+        "mastery": 0.999
+      },
+      {
+        "step": 62,
+        "mastery": 0.999
+      },
+      {
+        "step": 63,
+        "mastery": 0.994
+      },
+      {
+        "step": 64,
+        "mastery": 0.999
+      },
+      {
+        "step": 65,
+        "mastery": 0.999
+      },
+      {
+        "step": 66,
+        "mastery": 0.994
+      },
+      {
+        "step": 67,
+        "mastery": 0.998
+      },
+      {
+        "step": 68,
+        "mastery": 0.998
+      },
+      {
+        "step": 69,
+        "mastery": 0.988
+      },
+      {
+        "step": 70,
+        "mastery": 0.997
+      },
+      {
+        "step": 71,
+        "mastery": 0.999
+      },
+      {
+        "step": 72,
+        "mastery": 0.999
+      },
+      {
+        "step": 73,
+        "mastery": 0.997
+      },
+      {
+        "step": 74,
+        "mastery": 0.999
+      },
+      {
+        "step": 75,
+        "mastery": 0.999
+      }
+    ],
+    "misconceptions": {
+      "t_datatypes": {
+        "label": "混淆了函数定义def与调用",
+        "error_count": 11
+      },
+      "t_strings": {
+        "label": "信息的描述",
+        "error_count": 7
+      },
+      "t_control": {
+        "label": "信息的描述",
+        "error_count": 11
+      },
+      "t_recursion": {
+        "label": "信息的来源",
+        "error_count": 3
+      },
+      "t_variable": {
+        "label": "混淆了变量类型",
+        "error_count": 10
+      },
+      "t_functions": {
+        "label": "函数定义与函数调用",
+        "error_count": 10
+      },
+      "t_dicts": {
+        "label": "信息的描述",
+        "error_count": 8
+      },
+      "t_lists": {
+        "label": "append返回值为None",
+        "error_count": 7
+      }
+    },
+    "mastery_summary": {
+      "t_variable": {
+        "name": "Variables",
+        "mastery": 0.999,
+        "n_correct": 31,
+        "n_wrong": 15
+      },
+      "t_datatypes": {
+        "name": "Data Types",
+        "mastery": 0.999,
+        "n_correct": 40,
+        "n_wrong": 16
+      },
+      "t_strings": {
+        "name": "Strings",
+        "mastery": 0.999,
+        "n_correct": 25,
+        "n_wrong": 11
+      },
+      "t_control": {
+        "name": "Control Flow",
+        "mastery": 0.999,
+        "n_correct": 44,
+        "n_wrong": 17
+      },
+      "t_functions": {
+        "name": "Functions",
+        "mastery": 0.999,
+        "n_correct": 33,
+        "n_wrong": 15
+      },
+      "t_lists": {
+        "name": "Lists",
+        "mastery": 0.999,
+        "n_correct": 26,
+        "n_wrong": 10
+      },
+      "t_dicts": {
+        "name": "Dictionaries",
+        "mastery": 0.999,
+        "n_correct": 27,
+        "n_wrong": 14
+      },
+      "t_recursion": {
+        "name": "Recursion",
+        "mastery": 0.999,
+        "n_correct": 12,
+        "n_wrong": 7
+      }
+    }
+  },
+  "eval_summary": {
+    "ok": true,
+    "ragas_used": false,
+    "test_dataset": {
+      "total": 120,
+      "on_material": 22,
+      "off_material": 98,
+      "topic_coverage": [
+        "t_control",
+        "t_datatypes",
+        "t_dicts",
+        "t_exceptions",
+        "t_files",
+        "t_functions",
+        "t_lists",
+        "t_strings",
+        "t_tuples",
+        "t_variable"
+      ],
+      "query_type_distribution": {
+        "factual": 3,
+        "comparison": 3,
+        "conceptual": 3,
+        "procedural": 1,
+        "synthesis": 1,
+        "bilingual_comparison": 1,
+        "bilingual_factual": 10,
+        "off-material": 98
+      }
+    },
+    "test_set_path": "D:\\ecv-tutor\\server\\tests\\test_set.json",
+    "rag_metrics": {
+      "faithfulness": 0.7368,
+      "answer_relevancy": 1.0,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "answered_cases": 16,
+      "golden_cases": 14,
+      "refusal_rate": 0.9388,
+      "off_material_total": 98,
+      "off_material_refused": 92,
+      "on_material_total": 22,
+      "on_material_answered": 16,
+      "on_material_answered_rate": 0.7273,
+      "on_material_refused_by_gate": 6,
+      "on_material_refused_no_evidence": 0,
+      "retrieval_metrics": {
+        "qa": {
+          "retrieval_cases": 20,
+          "recall_at_k": 0.0,
+          "mrr_at_k": 0.0,
+          "ndcg_at_k": 0.0,
+          "k": 5,
+          "set_name": "qa"
+        },
+        "retrieval_selfcheck": {
+          "retrieval_cases": 1178,
+          "recall_at_k": 0.9321,
+          "mrr_at_k": 0.9172,
+          "ndcg_at_k": 0.9341,
+          "k": 5,
+          "set_name": "retrieval-selfcheck",
+          "cases_requested": 1178
+        }
+      }
+    },
+    "assessment_metrics": {
+      "mastery_gain_avg": 0.1757,
+      "question_repetition_rate_avg": 0.0
+    },
+    "all_metrics": {
+      "faithfulness": 0.7368,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "refusal_rate": 0.9388,
+      "mastery_gain": 0.1757,
+      "question_repetition_rate": 0.0
+    },
+    "synthesis_performance": [
+      {
+        "count": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      },
+      {
+        "count": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      },
+      {
+        "count": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      },
+      {
+        "count": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      }
+    ],
+    "student_profiles": [
+      {
+        "profile": "fast",
+        "mastery_before": 0.25,
+        "mastery_after": 0.832,
+        "mastery_gain": 0.582,
+        "question_repetition_rate": 0.0,
+        "asked_questions": 2,
+        "difficulty_distribution": {
+          "easy": 2,
+          "medium": 0,
+          "hard": 0
+        }
+      },
+      {
+        "profile": "average",
+        "mastery_before": 0.25,
+        "mastery_after": 0.277,
+        "mastery_gain": 0.027,
+        "question_repetition_rate": 0.0,
+        "asked_questions": 2,
+        "difficulty_distribution": {
+          "easy": 2,
+          "medium": 0,
+          "hard": 0
+        }
+      },
+      {
+        "profile": "struggling",
+        "mastery_before": 0.25,
+        "mastery_after": 0.363,
+        "mastery_gain": 0.113,
+        "question_repetition_rate": 0.0,
+        "asked_questions": 2,
+        "difficulty_distribution": {
+          "easy": 2,
+          "medium": 0,
+          "hard": 0
+        }
+      },
+      {
+        "profile": "functions_weak",
+        "mastery_before": 0.25,
+        "mastery_after": 0.231,
+        "mastery_gain": -0.019,
+        "question_repetition_rate": 0.0,
+        "asked_questions": 2,
+        "difficulty_distribution": {
+          "easy": 2,
+          "medium": 0,
+          "hard": 0
+        }
+      }
+    ],
+    "profile_trajectories": [
+      {
+        "profile": "fast",
+        "mastery_before": 0.25,
+        "mastery_after": 0.832,
+        "mastery_gain": 0.582
+      },
+      {
+        "profile": "average",
+        "mastery_before": 0.25,
+        "mastery_after": 0.277,
+        "mastery_gain": 0.027
+      },
+      {
+        "profile": "struggling",
+        "mastery_before": 0.25,
+        "mastery_after": 0.363,
+        "mastery_gain": 0.113
+      },
+      {
+        "profile": "functions_weak",
+        "mastery_before": 0.25,
+        "mastery_after": 0.231,
+        "mastery_gain": -0.019
+      }
+    ],
+    "config": {
+      "n_sessions": 1,
+      "questions_per_session": 2,
+      "test_dataset_summary": {
+        "total": 120,
+        "on_material": 22,
+        "off_material": 98,
+        "topic_coverage": [
+          "t_control",
+          "t_datatypes",
+          "t_dicts",
+          "t_exceptions",
+          "t_files",
+          "t_functions",
+          "t_lists",
+          "t_strings",
+          "t_tuples",
+          "t_variable"
+        ],
+        "query_type_distribution": {
+          "factual": 3,
+          "comparison": 3,
+          "conceptual": 3,
+          "procedural": 1,
+          "synthesis": 1,
+          "bilingual_comparison": 1,
+          "bilingual_factual": 10,
+          "off-material": 98
+        },
+        "language_distribution": {
+          "en": 115,
+          "zh": 5
+        },
+        "domain_distribution": {
+          "unknown": 22,
+          "geography": 8,
+          "cooking": 7,
+          "finance": 6,
+          "healthcare": 8,
+          "sports": 7,
+          "repair": 8,
+          "astronomy": 4,
+          "history": 4,
+          "education": 2,
+          "travel": 4,
+          "business": 4,
+          "physics": 4,
+          "art": 4,
+          "tech": 2,
+          "philosophy": 2,
+          "games": 2,
+          "economics": 4,
+          "pets": 2,
+          "technology": 2,
+          "crafts": 4,
+          "gardening": 2,
+          "literature": 2,
+          "geology": 2,
+          "wellness": 2,
+          "music": 2
+        },
+        "detailed_query_types": {
+          "factual": 3,
+          "comparison": 3,
+          "conceptual": 3,
+          "procedural": 1,
+          "synthesis": 1,
+          "bilingual_comparison": 1,
+          "bilingual_factual": 10,
+          "off-material": 98
+        },
+        "generated_at": "2026-10-14T19:51:44.156759"
+      },
+      "test_set_path": "D:\\ecv-tutor\\server\\tests\\test_set.json",
+      "seed": 42
+    }
+  }
+}

@@ -29,20 +29,25 @@
    - `server/run_ragas_judge.py` → RAGAS LLM-judge 采样评估
    - `server/generate_llm_on_material.py` → LLM 题目生成
 
-### 二、当前评估状态
+### 二、当前评估状态 (v2.0 QA set)
+
+> **v2.0 honest rebuild**: 早期 1283 用例集中 1183 条为 "kb-derived"
+> (query == expected answer 的自证用例)，已从 QA benchmark 移除，降级为独立
+> retrieval self-check 集 (`server/tests/retrieval_selfcheck.json`，1172 用例)。
+> 下面所有公共指标只来自真实独立题目。
 
 | 评估批次 | 状态 | 数据集规模 | RAGAS LLM-judge |
 |----------|------|------------|-----------------|
-| Baseline | ✅ 已完成 | 1190 用例 | ❌ 未使用 (lexical probe) |
-| Enhanced | ✅ 已完成 | 1283 用例 | ❌ 未使用 (lexical probe) |
+| Baseline (历史) | ✅ 已完成 | 1190 用例 | ❌ 未使用 (lexical probe) |
+| Enhanced (v2.0 正式) | ✅ 已完成 | 238 用例 (140 on-material + 98 off-material) | ❌ 采样运行后判定无效 (见下) |
 
 ### 三、指标目标与实际对比
 
-#### 基线指标 (Baseline - 2026-10-11)
+#### 基准指标 (Baseline - 2026-10-11, 历史)
 
 | 指标 | 目标值 | 实际值 | 状态 | 备注 |
 |------|--------|--------|------|------|
-| Faithfulness | ≥0.85 | 0.9154 | ✅ | lexical probe |
+| Faithfulness | ≥0.85 | 0.9154 | ✅ | lexical probe (旧 1190 集) |
 | Answer Relevancy | ≥0.80 | 1.0000 | ✅ | keyword overlap |
 | Context Precision | ≥0.75 | 0.0778 | ⚠️ | lexical probe, 非语义匹配 |
 | Context Recall | ≥0.80 | 0.2191 | ⚠️ | lexical probe, 非语义匹配 |
@@ -51,17 +56,17 @@
 | Adversarial Robustness | ≥60% | 92.5% | ✅ | |
 | Unit Tests | Pass | 108/108 | ✅ | |
 
-#### Enhanced 指标 (去重+扩充后 - 2026-10-12)
+#### Enhanced 指标 (v2.0 正式, 2026-10-12)
 
-| 指标 | 目标值 | 实际值 | 状态 | vs Baseline | 备注 |
-|------|--------|--------|------|-------------|------|
-| Faithfulness | ≥0.85 | 0.9173 | ✅ | ↑ +0.0019 | lexical probe |
-| Answer Relevancy | ≥0.80 | 1.0000 | ✅ | → | keyword overlap |
-| Context Precision | ≥0.75 | 0.0730 | ⚠️ | ↓ -0.0048 | lexical probe |
-| Context Recall | ≥0.80 | 0.2050 | ⚠️ | ↓ -0.0141 | lexical probe |
-| Refusal Rate | ≥95% | 96.94% | ✅ | ↓ | 98 off-material (更真实) |
-| Mastery Gain | — | 0.426 | — | — | |
-| Off-Material Cases | 20+ | 98 | ✅ | ↑ 16× | |
+| 指标 | 目标值 | 实际值 | 状态 | 备注 |
+|------|--------|--------|------|------|
+| Faithfulness | ≥0.85 | ~0.917 | ✅ | lexical probe (v2.0, `ragas_used: false`) |
+| Answer Relevancy | ≥0.80 | 1.0000 | ✅ | keyword overlap |
+| Context Precision | ≥0.75 | 0.0730 | ⚠️ | lexical probe, 非语义匹配 |
+| Context Recall | ≥0.80 | 0.2050 | ⚠️ | lexical probe, 非语义匹配 |
+| Refusal Rate | ≥95% | 96.94% | ✅ | 95/98 off-material 正确拒绝 |
+| Mastery Gain | — | 0.426 | — | BKT 模拟学生 |
+| Off-Material Cases | 20+ | 98 | ✅ | ↑ 16× |
 
 ### 四、已知限制与诚实声明
 
@@ -69,13 +74,13 @@
 
 1. **Context Precision/Recall 较低 (0.073/0.205)**: 受离线 BM25-only 模式限制（无 GPU embedding 模型）。当前使用词法探针 (lexical probe) 评估，非 RAGAS 语义级 LLM-judge。启用 embedding 模型 + RAGAS LLM-judge 可获得真实语义指标。
 2. **Answer Relevancy = 1.0**: 基于关键词重叠计算，非语义相关性。真实 LLM-judge 评分预计在 0.7-0.9 之间。
-3. **RAGAS 指标**: 当前报告的是离线词法探针，已明确标注 `ragas_used: false`。
-4. **VLM/OCR**: 可选功能，需要 GPU 和额外依赖，默认不启用，不影响核心演示。
+3. **RAGAS LLM-judge 采样运行判定无效**: 以 `run_ragas_judge.py`（seed 42，50 on-material + 30 off-material 采样）真实调用 LLM-judge，因 judge 模型对本环境返回全 0 分（faithfulness/context 均 0），被 degenerate-run guard 拦截，回落为 lexical probe 并写入 `docs/eval_results_ragas_judge.json`（`ragas_used: false`）。公共指标不包含该采样值。
+4. **VLM/OCR (1d)**: 已实现并经云端视觉 API 真跑小批量（2 个 PDF、6 张图 → 6 个带 `【图表】` 图注的 unit，`docs/vlm_small_batch_report.json`）。默认配置走云端视觉模型；本机本地 Qwen2.5-VL-3B 因 CPU 内存不足无法加载。
 5. **LLM 生成题目待审核**: `llm_generated_on_material.json` 中的 118 个题目未经人工审核，暂未整合到正式测试集。
 
 ### 五、答辩亮点提炼
 
-1. **数据驱动评估**: 1283 测试用例（含 98 个域外拒绝测试），远超一般 Hackathon 项目
+1. **数据驱动评估**: v2.0 正式测试集 238 用例（140 on-material + 98 域外拒绝测试，另有 1172 检索自检例），远超一般 Hackathon 项目
 2. **闭域系统设计**: 正确拒绝域外查询 (96.94%)，而非幻觉回答
 3. **双语支持**: 中英文成对测试，跨语言鲁棒性验证
 4. **多层级评估**: 词法探针 (RAGAS framework) + 认知诊断 + 对抗测试 + 单元测试

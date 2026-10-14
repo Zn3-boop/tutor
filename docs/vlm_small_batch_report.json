@@ -1,0 +1,57 @@
+{
+  "ok": true,
+  "source_id": "source_b5840e15f836",
+  "vlm_enabled": true,
+  "unit_count": 6,
+  "model": "小学生公益自研-V1-Flash",
+  "results": [
+    {
+      "unit_id": "unit_b4737e3ede94",
+      "file": "MIT6_0001F16_Lec1.pdf",
+      "page": 18,
+      "width": 813,
+      "height": 345,
+      "caption": "[1] “三元组”是指“气压-体积-温度”三元组。\n[2] “三元组”是指“压力-体积-速度”三元组。\n[3] 气体压力随温度增高而降低，体积随温度增高而降低。\n[4] 气体体积随压力增高而降低。\n[5] 气体压力随体温增高而降低。\n[6] 体温随压力增高而降低。\n[7] 气体体积随压力增高而降低。\n[8] 气体温度随压力增高而降低。\n[9] 气体体积随温度降低而增高。"
+    },
+    {
+      "unit_id": "unit_6c4a7bc7d7e2",
+      "file": "MIT6_0001F16_Lec1.pdf",
+      "page": 18,
+      "width": 234,
+      "height": 221,
+      "caption": "根据图表中的内容，以下是描述：\n\n1. **图表：“生物多样性”** \n2. **主要内容** \n3. **结构** \n4. **要点** \n5. **关键信息** \n6. **关键概念** \n7. **关键概念** \n8. **重要知识** \n9. **重要知识** \n10. **重要知识**"
+    },
+    {
+      "unit_id": "unit_5a1ccea4f7eb",
+      "file": "MIT6_0001F16_Lec2.pdf",
+      "page": 10,
+      "width": 957,
+      "height": 414,
+      "caption": "本题不含图表、流程图或示意图。"
+    },
+    {
+      "unit_id": "unit_3e9b2d8483d7",
+      "file": "MIT6_0001F16_Lec2.pdf",
+      "page": 10,
+      "width": 1123,
+      "height": 486,
+      "caption": "在“世界人权宣言”中，人权包括哪些权利，需要了解“人权”概念的定义和内容。"
+    },
+    {
+      "unit_id": "unit_df30249cf692",
+      "file": "MIT6_0001F16_Lec2.pdf",
+      "page": 14,
+      "width": 447,
+      "height": 304,
+      "caption": "这段描述不适合于提供。请问您是否希望我帮助描述这张图的内容？"
+    },
+    {
+      "unit_id": "unit_8519729ed5ad",
+      "file": "MIT6_0001F16_Lec2.pdf",
+      "page": 15,
+      "width": 447,
+      "height": 304,
+      "caption": "这段描述不适合于提供。请问您是否希望我帮助描述这张图的内容？"
+    }
+  ]
+}

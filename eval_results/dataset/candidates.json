@@ -1,0 +1,210 @@
+{
+  "version": "ragas-0.3.9-short-chunk",
+  "generated_at": "2026-10-14T03:45:34Z",
+  "candidates": [
+    {
+      "user_input": "What is the Creative Commons license for the book 'Think Python: How to Think Like a Computer Scientist'?",
+      "reference_contexts": [
+        "Think Python\nHow to Think Like a Computer Scientist\n2nd Edition, Version 2.4.0\nThink Python\nHow to Think Like a Computer Scientist\n2nd Edition, Version 2.4.0\nAllen Downey\nGreen Tea Press\nNeedham, Massachusetts\nCopyright © 2015 Allen Downey.\nGreen Tea Press\n9 Washburn Ave\nNeedham MA 02492\nPermission is granted to copy, distribute, and/or modify this document under the terms of the\nCreative Commons Attribution-NonCommercial 3.0 Unported License, which is available at http:\n//creativecommons.org/licenses/by-nc/3.0/.\nThe original form of this book is LATEX source code. Compiling this LATEX source has the effect of gen-\nerating a device-independent representation of a textbook, which can be converted to other formats\nand printed.\nThe LATEX source for this book is available from http://www.thinkpython.com"
+      ],
+      "reference": "The Creative Commons Attribution-NonCommercial 3.0 Unported License is granted for the book 'Think Python: How to Think Like a Computer Scientist'.",
+      "persona_name": "Computer Science Professor",
+      "query_style": "PERFECT_GRAMMAR",
+      "query_length": "SHORT",
+      "synthesizer_name": "single_hop_specific_query_synthesizer",
+      "candidate_chunk_id": "kch_b71fba31db",
+      "source_id": "source_0e08afcd1ce7",
+      "page_range": [
+        1,
+        4
+      ],
+      "unit_ids": [
+        "unit_354ba43f2acc",
+        "unit_e9b8cdbd5c95",
+        "unit_391d111509fb"
+      ],
+      "topic_ids": [
+        "t_control",
+        "t_datatypes",
+        "t_lists"
+      ]
+    },
+    {
+      "user_input": "What is the purpose of type in programming languages?",
+      "reference_contexts": [
+        "4\nChapter 1. The way of the program\n1.5\nValues and types\nA value is one of the basic things a program works with, like a letter or a number. Some\nvalues we have seen so far are 2, 42.0, and 'Hello, World!'.\nThese values belong to different types: 2 is an integer, 42.0 is a ﬂoating-point number, and\n'Hello, World!' is a string, so-called because the letters it contains are strung together.\nIf you are not sure what type a value has, the interpreter can tell you:\n>>> type(2)\n<class 'int'>\n>>> type(42.0)\n<class 'float'>\n>>> type('Hello, World!')\n<class 'str'>\nIn these results, the word “class” is used in the sense of a category; a type is a category of\nvalues.\nNot surprisingly, integers belong to the type int, strings belong to str and ﬂoating-point\nnumbers belong to float.\nWhat about values like '2' and '42.0'? They look like numbers, but they are in quotation\nmarks like strings.\n>>> type('2')\n<class 'str'>\n>>> type('42.0')\n<class 'str'>\nThey’re strings.\nWhen you type a large integer, you might be tempted to use commas between groups of\ndigits, as in 1,000,000. This is not a legal integer in Python, but it is legal:\n>>> 1,000,000\n(1, 0, 0)\nThat’s not what we expected at all! Python interprets 1,000,000 as a comma-separated\nsequence of integers. We’ll learn more about this kind of sequence later.\n1.6\nFormal and natural languages\nNatural languages are the languages people speak, such as English, Spanish, and French.\nThey were not designed by people (although people try to impose some order on them);\nthey evolved naturally.\nFormal languages are languages that are designed by people for speciﬁc applications. For\nexample, the notation that mathematicians use is a formal language that is particularly\ngood at denoting relationships among numbers and symbols. Chemists use a formal lan-\nguage to represent the chemical structure of molecules. And most importantly:\nProgramming languages are formal languages that have been designed to\nexpress computations."
+      ],
+      "reference": "In programming languages, type refers to the category of values a value belongs to, such as integers, strings, or floating-point numbers.",
+      "persona_name": "Data Analyst",
+      "query_style": "PERFECT_GRAMMAR",
+      "query_length": "LONG",
+      "synthesizer_name": "single_hop_specific_query_synthesizer",
+      "candidate_chunk_id": "kch_13f5e3c9d7",
+      "source_id": "source_0e08afcd1ce7",
+      "page_range": [
+        26,
+        26
+      ],
+      "unit_ids": [
+        "unit_48241d17caf6"
+      ],
+      "topic_ids": [
+        "t_control",
+        "t_datatypes",
+        "t_dicts",
+        "t_strings",
+        "t_variable"
+      ]
+    },
+    {
+      "user_input": "What is the difference between informal and formal language in the context of programming?",
+      "reference_contexts": [
+        "4\nChapter 1. The way of the program\n1.5\nValues and types\nA value is one of the basic things a program works with, like a letter or a number. Some\nvalues we have seen so far are 2, 42.0, and 'Hello, World!'.\nThese values belong to different types: 2 is an integer, 42.0 is a ﬂoating-point number, and\n'Hello, World!' is a string, so-called because the letters it contains are strung together.\nIf you are not sure what type a value has, the interpreter can tell you:\n>>> type(2)\n<class 'int'>\n>>> type(42.0)\n<class 'float'>\n>>> type('Hello, World!')\n<class 'str'>\nIn these results, the word “class” is used in the sense of a category; a type is a category of\nvalues.\nNot surprisingly, integers belong to the type int, strings belong to str and ﬂoating-point\nnumbers belong to float.\nWhat about values like '2' and '42.0'? They look like numbers, but they are in quotation\nmarks like strings.\n>>> type('2')\n<class 'str'>\n>>> type('42.0')\n<class 'str'>\nThey’re strings.\nWhen you type a large integer, you might be tempted to use commas between groups of\ndigits, as in 1,000,000. This is not a legal integer in Python, but it is legal:\n>>> 1,000,000\n(1, 0, 0)\nThat’s not what we expected at all! Python interprets 1,000,000 as a comma-separated\nsequence of integers. We’ll learn more about this kind of sequence later.\n1.6\nFormal and natural languages\nNatural languages are the languages people speak, such as English, Spanish, and French.\nThey were not designed by people (although people try to impose some order on them);\nthey evolved naturally.\nFormal languages are languages that are designed by people for speciﬁc applications. For\nexample, the notation that mathematicians use is a formal language that is particularly\ngood at denoting relationships among numbers and symbols. Chemists use a formal lan-\nguage to represent the chemical structure of molecules. And most importantly:\nProgramming languages are formal languages that have been designed to\nexpress computations."
+      ],
+      "reference": "In the context of programming, formal languages are designed by people for specific applications, as opposed to informal languages which are not designed by people and have evolved naturally, like natural languages spoken by humans.",
+      "persona_name": "Data Analyst",
+      "query_style": "WEB_SEARCH_LIKE",
+      "query_length": "LONG",
+      "synthesizer_name": "single_hop_specific_query_synthesizer",
+      "candidate_chunk_id": "kch_13f5e3c9d7",
+      "source_id": "source_0e08afcd1ce7",
+      "page_range": [
+        26,
+        26
+      ],
+      "unit_ids": [
+        "unit_48241d17caf6"
+      ],
+      "topic_ids": [
+        "t_control",
+        "t_datatypes",
+        "t_dicts",
+        "t_strings",
+        "t_variable"
+      ]
+    },
+    {
+      "user_input": "What is an expression in Python, and what is its purpose in the code?",
+      "reference_contexts": [
+        "10\nChapter 2. Variables, expressions and statements\nVariable names can be as long as you like. They can contain both letters and numbers, but\nthey can’t begin with a number. It is legal to use uppercase letters, but it is conventional to\nuse only lower case for variables names.\nThe underscore character, _, can appear in a name. It is often used in names with multiple\nwords, such as your_name or airspeed_of_unladen_swallow.\nIf you give a variable an illegal name, you get a syntax error:\n>>> 76trombones = 'big parade'\nSyntaxError: invalid syntax\n>>> more@ = 1000000\nSyntaxError: invalid syntax\n>>> class = 'Advanced Theoretical Zymurgy'\nSyntaxError: invalid syntax\n76trombones is illegal because it begins with a number. more@ is illegal because it contains\nan illegal character, @. But what’s wrong with class?\nIt turns out that class is one of Python’s keywords. The interpreter uses keywords to\nrecognize the structure of the program, and they cannot be used as variable names.\nPython 3 has these keywords:\nFalse\nclass\nfinally\nis\nreturn\nNone\ncontinue\nfor\nlambda\ntry\nTrue\ndef\nfrom\nnonlocal\nwhile\nand\ndel\nglobal\nnot\nwith\nas\nelif\nif\nor\nyield\nassert\nelse\nimport\npass\nbreak\nexcept\nin\nraise\nYou don’t have to memorize this list. In most development environments, keywords are\ndisplayed in a different color; if you try to use one as a variable name, you’ll know.\n2.3\nExpressions and statements\nAn expression is a combination of values, variables, and operators. A value all by itself is\nconsidered an expression, and so is a variable, so the following are all legal expressions:\n>>> 42\n42\n>>> n\n17\n>>> n + 25\n42\nWhen you type an expression at the prompt, the interpreter evaluates it, which means that\nit ﬁnds the value of the expression. In this example, n has the value 17 and n + 25 has the\nvalue 42.\nA statement is a unit of code that has an effect, like creating a variable or displaying a\nvalue.\n>>> n = 17\n>>> print(n)"
+      ],
+      "reference": "An expression is a combination of values, variables, and operators in Python. Its purpose is to evaluate to a value when typed at the prompt, or to be used as a statement in a larger program.",
+      "persona_name": "Python Developer",
+      "query_style": "POOR_GRAMMAR",
+      "query_length": "SHORT",
+      "synthesizer_name": "single_hop_specific_query_synthesizer",
+      "candidate_chunk_id": "kch_8c70180159",
+      "source_id": "source_0e08afcd1ce7",
+      "page_range": [
+        32,
+        32
+      ],
+      "unit_ids": [
+        "unit_2f0b3e8c83cc"
+      ],
+      "topic_ids": [
+        "t_control",
+        "t_datatypes",
+        "t_dicts",
+        "t_functions",
+        "t_lists",
+        "t_variable"
+      ]
+    },
+    {
+      "user_input": "What is the rule for variable names in Python?",
+      "reference_contexts": [
+        "10\nChapter 2. Variables, expressions and statements\nVariable names can be as long as you like. They can contain both letters and numbers, but\nthey can’t begin with a number. It is legal to use uppercase letters, but it is conventional to\nuse only lower case for variables names.\nThe underscore character, _, can appear in a name. It is often used in names with multiple\nwords, such as your_name or airspeed_of_unladen_swallow.\nIf you give a variable an illegal name, you get a syntax error:\n>>> 76trombones = 'big parade'\nSyntaxError: invalid syntax\n>>> more@ = 1000000\nSyntaxError: invalid syntax\n>>> class = 'Advanced Theoretical Zymurgy'\nSyntaxError: invalid syntax\n76trombones is illegal because it begins with a number. more@ is illegal because it contains\nan illegal character, @. But what’s wrong with class?\nIt turns out that class is one of Python’s keywords. The interpreter uses keywords to\nrecognize the structure of the program, and they cannot be used as variable names.\nPython 3 has these keywords:\nFalse\nclass\nfinally\nis\nreturn\nNone\ncontinue\nfor\nlambda\ntry\nTrue\ndef\nfrom\nnonlocal\nwhile\nand\ndel\nglobal\nnot\nwith\nas\nelif\nif\nor\nyield\nassert\nelse\nimport\npass\nbreak\nexcept\nin\nraise\nYou don’t have to memorize this list. In most development environments, keywords are\ndisplayed in a different color; if you try to use one as a variable name, you’ll know.\n2.3\nExpressions and statements\nAn expression is a combination of values, variables, and operators. A value all by itself is\nconsidered an expression, and so is a variable, so the following are all legal expressions:\n>>> 42\n42\n>>> n\n17\n>>> n + 25\n42\nWhen you type an expression at the prompt, the interpreter evaluates it, which means that\nit ﬁnds the value of the expression. In this example, n has the value 17 and n + 25 has the\nvalue 42.\nA statement is a unit of code that has an effect, like creating a variable or displaying a\nvalue.\n>>> n = 17\n>>> print(n)"
+      ],
+      "reference": "Variable names in Python can be as long as you like, contain both letters and numbers, but they can't begin with a number. They can also contain underscores. However, they can't contain illegal characters like @ and must not be one of Python's keywords.",
+      "persona_name": "Python Developer",
+      "query_style": "PERFECT_GRAMMAR",
+      "query_length": "LONG",
+      "synthesizer_name": "single_hop_specific_query_synthesizer",
+      "candidate_chunk_id": "kch_8c70180159",
+      "source_id": "source_0e08afcd1ce7",
+      "page_range": [
+        32,
+        32
+      ],
+      "unit_ids": [
+        "unit_2f0b3e8c83cc"
+      ],
+      "topic_ids": [
+        "t_control",
+        "t_datatypes",
+        "t_dicts",
+        "t_functions",
+        "t_lists",
+        "t_variable"
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "chunk_id": "kch_16a3891dc4",
+      "error": "APIConnectionError",
+      "message": "Connection error."
+    },
+    {
+      "chunk_id": "kch_78ce4bdd83",
+      "error": "OutputParserException",
+      "message": "Invalid json output: The output string has been fixed and returned in the proper JSON format with a value of 4.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE "
+    },
+    {
+      "chunk_id": "kch_cde092658b",
+      "error": "ValueError",
+      "message": "not enough values to unpack (expected 2, got 1)"
+    },
+    {
+      "chunk_id": "kch_dac673a6cf",
+      "error": "OutputParserException",
+      "message": "Invalid json output: The output string has been fixed to comply with the specified JSON schema.\n{\n  \"score\": 4,\n  \"nodeContent\": \"This is the fixed output string\",\n  \"rubric\": \"The rubric for the score is as follows:\\n* Score 1: The page content is irrelevant or does not align with the main themes or topics of the document summary. (Not applicable)\\n* Score 2: The page content partially aligns with the document summary, but it includes unrelated details or lacks critical information related to t"
+    },
+    {
+      "chunk_id": "kch_d2e41899c4",
+      "error": "OutputParserException",
+      "message": "Invalid json output: Given a list of themes and personas with their roles, associate each persona with relevant themes based on their role description.\\nPlease return the output in a JSON format that complies with the following schema as specified in JSON Schema:\\n{\\\"properties\": {\\\"mapping\": {\\\"additionalProperties\": {\\\"items\": {\\\"type\": \"string\"}, \"type\": \"array\"}, \"title\": \"Mapping\", \"type\": \"object\"}}, \"required\": [\"mapping\"], \"title\": \"PersonaThemesMapping\", \"type\": \"object\"}\nFor troublesho"
+    },
+    {
+      "chunk_id": "kch_ceb5e606de",
+      "error": "OutputParserException",
+      "message": "Invalid json output: Functions are used to automate tasks, analyze data, and display results. They can return values, like math.cos(radians), and be assigned to variables. Void functions don't return values and might display something on the screen, like print_twice('Bing').\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE "
+    },
+    {
+      "chunk_id": "kch_fadf2399e1",
+      "error": "RuntimeError",
+      "message": "Tensor on device cpu is not on the expected device meta!"
+    },
+    {
+      "chunk_id": "kch_1086b895ea",
+      "error": "OutputParserException",
+      "message": "Invalid json output: I will make sure to return the output in the correct JSON format that complies with the specified schema.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE "
+    },
+    {
+      "chunk_id": "kch_6b3bd55c9c",
+      "error": "RuntimeError",
+      "message": "Tensor on device cpu is not on the expected device meta!"
+    },
+    {
+      "chunk_id": "kch_6f770ef053",
+      "error": "OutputParserException",
+      "message": "Invalid json output: Stack diagrams are a tool used to track which variables can be used where. Frames represent functions with parameters and variables inside. If an error occurs, Python prints the name of the function, the function that called it, and the name of the function that called that, all the way back to __main.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE "
+    },
+    {
+      "chunk_id": "kch_0ab6054520",
+      "error": "OutputParserException",
+      "message": "Invalid json output: The output string did not satisfy the constraints given in the prompt. Fix the output string and return it.\nPlease return the output in a JSON format that complies with the following schema as specified in JSON Schema:\n{\n  \"properties\": {\n    \"text\": {\n      \"title\": \"Text\",\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"text\"\n  ],\n  \"title\": \"StringIO\",\n  \"type\": \"object\"\n}\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PAR"
+    },
+    {
+      "chunk_id": "kch_64b2076c8a",
+      "error": "RuntimeError",
+      "message": "Tensor on device cpu is not on the expected device meta!"
+    },
+    {
+      "chunk_id": "kch_25df28fd2d",
+      "error": "RuntimeError",
+      "message": "Tensor on device cpu is not on the expected device meta!"
+    }
+  ]
+}

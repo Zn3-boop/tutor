@@ -42,7 +42,7 @@ Frontend (React + Vite)          Backend (FastAPI + Python)
 | 1a. Multimodal ingestion | ✅ | PDF/PPTX/DOCX/SRT auto-parse |
 | 1b. Content organization + source links | ✅ | Per-unit origin (page/slide/timestamp) |
 | 1c. Topic/concept extraction | ✅ | Keyword matching auto-tagging |
-| 1d. Image/chart processing | ✅ | PyMuPDF embedded images, VLM optional |
+| 1d. Image/chart processing | ⚠️ 已实现、默认关闭、本次未演示 | `VLM_ENABLED=false` default → no image captions in KB; requires GPU/API |
 | 2a. Source-cited answers | ✅ | `[1] p.14` format, clickable → PDF viewer |
 | 2b. Refuse off-topic questions | ✅ | Lexical relevance gate (threshold 0.40) |
 | 3a. Adaptive Quiz (MCQ/short/numeric) | ✅ | Cloze-MCQ offline generation |
@@ -71,16 +71,47 @@ Frontend (React + Vite)          Backend (FastAPI + Python)
 
 ### Offline Evaluation (ragas_used: false, lexical probe)
 
+> **QA test set is v2.0 (`server/tests/test_set.json`)**: the previous 1283-case
+> set was rebuilt — 1183 tautological "kb-derived" cases (query == answer) were
+> removed from the QA benchmark and moved to a retrieval self-check set
+> (`server/tests/retrieval_selfcheck.json`). Metrics below are computed only over
+> real, independent questions. Retrieval numbers (0.073/0.205) average over the
+> on-material QA cases with resolved gold units **plus** the 1172-case
+> retrieval self-check set, and are LPBM25-only lexical probes.
+
 | Metric | Value | Note |
 |--------|-------|------|
-| **Test Cases** | **1283** | 1185 on-material + 98 off-material |
-| **Faithfulness** | **0.917** | Lexical probe |
-| **Answer Relevancy** | **1.000** | Keyword overlap |
-| **Context Precision** | 0.073 | Lexical probe (BM25-only limitation) |
-| **Context Recall** | 0.205 | Lexical probe (BM25-only limitation) |
+| **QA Test Cases** | **238** | 140 on-material + 98 off-material |
+| **Retrieval Self-Check Cases** | **1172** | query = unit first sentence (recall probe only) |
+| **Faithfulness** | ~0.917 | Lexical probe (v2.0 QA set, ragas_used: false) |
+| **Answer Relevancy** | **1.000** | Keyword overlap (not semantic) |
+| **Context Precision** | 0.073 | Lexical probe, ID-based (BM25-only limitation) |
+| **Context Recall** | 0.205 | Lexical probe, ID-based (BM25-only limitation) |
 | **Refusal Rate** | **96.94%** | 95/98 off-material queries correctly refused |
 | **Mastery Gain (avg)** | **+0.426** | Simulated student mastery improvement |
 | **Question Repetition** | **0.000** | Zero repeat |
+
+### RAGAS LLM-Judge: Honest Status
+
+A real RAGAS LLM-judge run was attempted (`server/run_ragas_judge.py`, seed 42):
+- It sampled 50 on-material + 30 off-material cases from the **v2.0 QA set**
+  and ran a real LLM judge (chat/completions).
+- The judge returned degenerate all-zero faithfulness/context scores in this
+  environment (every sub-call effectively refused); the degenerate-run guard
+  rejected the run and fell back to lexical probes — `docs/eval_results_ragas_judge.json`
+  is therefore `ragas_used: false`, and those sampled numbers are **not**
+  reported as pass metrics.
+- All public RAG metrics are **offline lexical probes** (`ragas_used: false`),
+  explicitly — we do not pass them off as RAGAS scores.
+
+### VLM Small-Batch Figure Extraction (1d)
+
+A real, deliberately small VLM chart-captioning run was executed:
+- 2 bundled MIT PDFs, 6 embedded figures → 6 KB units tagged `【图表】`
+- Provider: configured cloud vision API (`VLM_CLOUD_MODEL` in `server/.env`)
+- Artifact: `docs/vlm_small_batch_report.json` (per-unit captions + provenance)
+- The local Qwen2.5-VL-3B model cannot load on this machine's CPU memory
+  budget (OOM mid-load), so the cloud API is the enabled path.
 
 ### Adversarial Testing
 

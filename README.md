@@ -94,24 +94,37 @@ python -m pytest tests -v
 
 ## 📊 Evaluation Results
 
-> Full details in [docs/EVALUATION_SUMMARY.md](docs/EVALUATION_SUMMARY.md)
+> Full details in [docs/EVALUATION_SUMMARY.md](docs/EVALUATION_SUMMARY.md) and [docs/eval_results.md](docs/eval_results.md)
+
+### QA Test Set (v2.0, `server/tests/test_set.json`)
+
+> **Honest rebuild**: the earlier 1283-case set contained 1183 "kb-derived"
+> cases where query == expected answer (tautological self-validation). Those
+> were removed from the QA benchmark and demoted to a dedicated retrieval
+> self-check set (`server/tests/retrieval_selfcheck.json`). Numbers below come
+> only from real, independent questions.
 
 | Metric | Value | Note |
 |--------|-------|------|
-| **Test Cases** | **1283** | 1185 on-material + 98 off-material (39 domains × 2 languages) |
-| **Faithfulness** | **0.917** | Lexical probe (ragas_used: false) |
-| **Answer Relevancy** | **1.000** | Keyword overlap |
+| **QA Test Cases** | **238** | 140 on-material + 98 off-material |
+| **On-material composition** | 118 LLM bank + 10 builtin + 1 synthesis + 1 bilingual comparison + 10 bilingual factual | Query ≠ answer everywhere |
+| **Retrieval self-check cases** | 1172 | query = unit first sentence (recall@k probe only, not QA) |
+| **Faithfulness** | ~0.917 | **Lexical probe** (`ragas_used: false`) |
+| **Answer Relevancy** | **1.000** | Keyword overlap (not semantic) |
+| **Context Precision** | 0.073 | Lexical probe (BM25-only limitation) |
+| **Context Recall** | 0.205 | Lexical probe (BM25-only limitation) |
 | **Refusal Rate** | **96.94%** | 95/98 off-material queries correctly refused |
 | **Cognitive Diagnosis** | **71.4%** | Error classification accuracy |
 | **Adversarial Robustness** | **92.5%** | Pass rate against adversarial attacks |
 | **Unit Tests** | **108/108** | All passing |
-| **Mastery Gain (avg)** | **+0.426** | Simulated student mastery improvement |
+| **Mastery Gain (avg)** | **+0.426** | Simulated student mastery improvement (BKT) |
 
 ### Known Limitations (Honest Disclosure)
 
 - Context Precision/Recall (0.073/0.205) are **lexical probes**, not RAGAS LLM-judge scores — clearly labeled `ragas_used: false`
+- **RAGAS LLM-judge attempt**: a real judge run (`server/run_ragas_judge.py`, seed 42) was executed on sampled v2.0 cases; the judge model returned degenerate all-zero faithfulness/context scores, the guard rejected the run and fell back to lexical probes (`docs/eval_results_ragas_judge.json`, `ragas_used: false`). A valid LLM-judge pass is not part of this submission — public RAG metrics are **offline lexical probes only**.
 - BM25-only retrieval (no GPU embedding model); enabling vector search + LLM-judge would yield higher scores
-- VLM/OCR optional, requires GPU, disabled by default
+- **VLM/OCR (1d)**: implemented and **真跑验证** — a small batch (2 PDFs, 6 embedded figures) was captioned via the configured cloud vision API and the captions were written into the KB as `【图表】` units (`docs/vlm_small_batch_report.json`, 6 units). Default is cloud-API-enabled (`VLM_ENABLED=true`); the local Qwen2.5-VL-3B model cannot load on this machine's CPU memory budget, so full-course VLM ingestion is not enabled by default.
 
 ## 🛠 Tech Stack
 

@@ -1,5 +1,6 @@
 {
   "ok": true,
+  "note": "HISTORICAL ARTIFACT (superseded by v2.0 QA set). This run used the old 1283-case set which contained 1183 kb-derived tautological cases (query == expected answer); faithfulness 0.9642 is a lexical probe over that inflated set, NOT a RAGAS LLM-judge score. See README 'QA Test Set (v2.0)' and docs/EVALUATION_SUMMARY.md for the current 238-case benchmark.",
   "ragas_used": false,
   "test_dataset": {
     "total": 1283,

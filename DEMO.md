@@ -81,8 +81,8 @@
 - Tab: **系统评测**
 - Click "运行模拟评测"
 - **Highlight**: Multi-profile mastery trajectories, faithfulness/repetition metrics
-- **Expected metrics** (Enhanced evaluation, 1283 test cases):
-  - Faithfulness: ~0.917
+- **Expected metrics** (Enhanced evaluation, v2.0 QA set — 238 test cases: 140 on-material + 98 off-material):
+  - Faithfulness: ~0.917 (lexical probe)
   - Refusal Rate: ~96.94% (95/98 off-material queries refused)
   - Mastery Gain: +0.426 avg across simulated students
   - Adversarial Robustness: 92.5%
@@ -113,7 +113,7 @@
 | Quiz shows 0 questions | Need more units — seed demo or upload materials |
 | Source Drawer empty | Ensure PDF files exist in `server/demo_materials/` |
 | Graph not rendering | Refresh page, check browser console for errors |
-| VLM errors in log | Normal — VLM disabled by default, not needed for demo |
+| VLM errors in log | Normal — VLM defaults to cloud API for the small-batch figure run; verify `VLM_ENABLED=true` in `server/.env` |
 | Port 8000 already in use | Kill existing process: `lsof -ti:8000 \| xargs kill` |
 
 ---
@@ -124,3 +124,38 @@
 - **MIT OCW 6.0001 Slides** (PPTX) — bundled
 - **Official SRT Transcript** — bundled with timestamps
 - All materials are public/CC-licensed
+
+---
+
+## 🎯 Level-2 录屏辅助器（一键证据包 · 真实后端驱动）
+
+> 录屏前后跑一条命令，产出**可审计的真实后端证据包**，覆盖三个评分维度：
+> 知识库与来源标注(20%)、个性化功能有效性(20%)、系统评估(15%)。
+> 全部走真实 `rag.query` / BKT `LearnerModel` / `EvaluationRunner.run_full_evaluation`，非 mock。
+
+```bash
+cd server
+python scripts/demo_l2_review.py
+```
+
+**产物**
+- 终端人类可读报告（chat 引用 / BKT mastery 前后对比 / 评测指标分层）
+- `eval_results/eval_results_l2_review.json` 完整证据包（`{rag_demo, bkt_demo, eval_summary}` 三节）
+
+**评分维度 → 证据字段映射**
+
+| 评分项 | 权重 | 证据出处（JSON sections） |
+|---|---|---|
+| 知识库与来源标注 | 20% | `rag_demo` — 课内题引用(citations/evidence/retrieval_meta) + 超纲题拒答(refuse_reason/off_material) |
+| 个性化功能有效性 | 20% | `bkt_demo` — Demo 学生 BKT mastery 轨迹、per-topic mastery 读回(mastery/n_correct/n_wrong)、misconceptions |
+| 系统评估 | 15% | `eval_summary` — faithfulness/context_precision/context_recall/refusal_rate/mastery_gain_avg/repetition + student_profiles/profile_trajectories |
+| 用户体验与演示视频 | 15% | 配合上方 9 步手动演示脚本对 Dashboard 面板录屏 |
+
+**录屏编排建议**：终端窗口依次展示 Section A/B/C 输出（真实数据），
+同时浏览器操作 Dashboard 的 Chat / Quiz / 报告 / 图谱面板；两画面剪辑同段视频，
+剪进去的不再是「演示者声称」，而是「系统当场跑出的数字」。
+
+**已预置裁判入口（无需此脚本也能演示）**
+- `POST /tutor/demo/warmup` — 复用/创建"Demo 学生"，脚本化答题 + LLM 误区判断，
+  返回 trajectory + misconceptions（个性化面板打开即有数据）。
+- 前端 `EvaluationPanel` −「运行评测」→ 后台任务轮询 → 分层指标卡片。

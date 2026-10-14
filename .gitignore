@@ -47,6 +47,12 @@ _patch_ragas.py
 _test_ragas.py
 fix_ragas.py
 
+# RAGAS probe scratch (local experiments, never commit)
+.ragas_probe/
+
+# Eval probe scratch logs
+server/testset_probe*.txt
+
 # Test-gate scratch + backups (P2 AI-guard rail)
 server/tests/test_gate_*
 server/tests/*.bak
